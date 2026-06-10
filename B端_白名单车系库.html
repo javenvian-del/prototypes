@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>白名单车系库 — 充电运营平台</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, "PingFang SC", "Helvetica Neue", Arial, sans-serif; font-size: 14px; color: #333; background: #F0F2F0; height: 100vh; overflow: hidden; }
+.app { display: flex; height: 100vh; overflow: hidden; }
+
+/* SIDEBAR */
+.sidebar { width: 188px; min-width: 188px; background: #1A3530; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; }
+.sidebar::-webkit-scrollbar { width: 0; }
+.sidebar-logo { padding: 14px 16px; display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; color: #fff; letter-spacing: 0.3px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+.logo-icon { width: 28px; height: 28px; background: #0B7B6B; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.menu-section { padding: 6px 0; }
+.menu-group-label { padding: 10px 16px 4px; font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: 0.5px; user-select: none; }
+.menu-item { display: flex; align-items: center; padding: 9px 16px; cursor: pointer; font-size: 13px; color: rgba(255,255,255,0.65); transition: background 0.15s, color 0.15s; gap: 8px; user-select: none; }
+.menu-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+.menu-item.active { background: #0B7B6B; color: #fff; }
+.menu-item-text { flex: 1; }
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 8px; margin-top: auto; flex-shrink: 0; }
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: #0B7B6B; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; flex-shrink: 0; }
+.avatar-name { font-size: 13px; color: rgba(255,255,255,0.65); }
+
+/* MAIN */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+.topbar { height: 46px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; padding: 0 24px; font-size: 15px; font-weight: 500; color: #222; flex-shrink: 0; }
+.page-body { flex: 1; overflow-y: auto; padding: 16px 24px 32px; }
+.page-body::-webkit-scrollbar { width: 5px; }
+.page-body::-webkit-scrollbar-thumb { background: #d9d9d9; border-radius: 3px; }
+
+/* BREADCRUMB */
+.breadcrumb { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; font-size: 13px; }
+.bc-path { color: #999; cursor: pointer; }
+.bc-path:hover { color: #0B7B6B; }
+.bc-sep { color: #ddd; }
+.bc-current { color: #333; }
+
+/* CARD */
+.card { background: #fff; border-radius: 4px; padding: 20px 24px; margin-bottom: 16px; }
+
+/* FILTER */
+.filter-row { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.filter-field { display: flex; flex-direction: column; gap: 4px; }
+.filter-label { font-size: 12px; color: #888; }
+.filter-control { height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 10px; font-size: 13px; color: #333; outline: none; background: #fff; font-family: inherit; transition: border-color 0.15s; }
+.filter-control:focus { border-color: #0B7B6B; box-shadow: 0 0 0 2px rgba(11,123,107,0.08); }
+.filter-control::placeholder { color: #bbb; }
+select.filter-control { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; cursor: pointer; }
+.filter-actions { display: flex; gap: 8px; padding-bottom: 1px; }
+
+/* BUTTONS */
+.btn { height: 32px; padding: 0 16px; border-radius: 4px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.15s; border: none; white-space: nowrap; font-family: inherit; }
+.btn-primary { background: #0B7B6B; color: #fff; border: 1px solid #0B7B6B; }
+.btn-primary:hover { background: #096B5D; }
+.btn-default { background: #fff; color: #555; border: 1px solid #d9d9d9; }
+.btn-default:hover { border-color: #0B7B6B; color: #0B7B6B; }
+.btn-link { background: none; border: none; color: #0B7B6B; padding: 0; height: auto; font-size: 13px; cursor: pointer; font-family: inherit; }
+.btn-link:hover { text-decoration: underline; }
+.btn-warning-link { background: none; border: none; color: #D48806; padding: 0; height: auto; font-size: 13px; cursor: pointer; font-family: inherit; }
+.btn-warning-link:hover { text-decoration: underline; }
+.btn-enable-link { background: none; border: none; color: #0B7B6B; padding: 0; height: auto; font-size: 13px; cursor: pointer; font-family: inherit; }
+.btn-enable-link:hover { text-decoration: underline; }
+
+/* RESULT HEADER */
+.result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.result-title { font-size: 14px; font-weight: 600; color: #222; display: flex; align-items: center; gap: 8px; }
+.result-title-dot { width: 3px; height: 14px; background: #0B7B6B; border-radius: 2px; }
+.result-count { font-size: 13px; color: #888; font-weight: 400; }
+.result-count span { color: #0B7B6B; font-weight: 500; }
+
+/* TABLE */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table thead tr { border-bottom: 1px solid #f0f0f0; background: #fafafa; }
+.data-table thead th { padding: 10px 14px; text-align: left; font-weight: 500; color: #888; white-space: nowrap; font-size: 12px; }
+.data-table tbody tr { border-bottom: 1px solid #f5f5f5; transition: background 0.12s; }
+.data-table tbody tr:last-child { border-bottom: none; }
+.data-table tbody tr:hover { background: #f7fffd; }
+.data-table tbody td { padding: 12px 14px; color: #333; vertical-align: middle; }
+.td-mono { font-family: 'SF Mono', 'Menlo', 'Consolas', monospace; font-size: 12px; color: #555; letter-spacing: 0.3px; }
+.td-actions { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+.action-sep { color: #ddd; font-size: 12px; user-select: none; }
+.table-empty { text-align: center; padding: 48px 0; color: #bbb; font-size: 13px; }
+
+/* STATUS TAG */
+.status-tag { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 8px; border-radius: 3px; font-size: 12px; white-space: nowrap; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.status-active { background: #E6F7F4; color: #0B7B6B; }
+.status-active .status-dot { background: #0B7B6B; }
+.status-disabled { background: #f5f5f5; color: #999; }
+.status-disabled .status-dot { background: #bbb; }
+
+/* PAGINATION */
+.pagination { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 14px; border-top: 1px solid #f0f0f0; }
+.page-info { font-size: 13px; color: #888; }
+.page-info span { color: #333; font-weight: 500; }
+.page-controls { display: flex; align-items: center; gap: 6px; }
+.page-btn { height: 28px; min-width: 28px; padding: 0 8px; border: 1px solid #d9d9d9; border-radius: 4px; background: #fff; font-size: 13px; color: #555; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s; font-family: inherit; }
+.page-btn:hover:not(:disabled) { border-color: #0B7B6B; color: #0B7B6B; }
+.page-btn.active { background: #0B7B6B; border-color: #0B7B6B; color: #fff; cursor: default; }
+.page-btn:disabled { color: #ccc; cursor: not-allowed; }
+.page-size-select { height: 28px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 22px 0 8px; font-size: 13px; color: #555; outline: none; cursor: pointer; font-family: inherit; appearance: none; -webkit-appearance: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E") no-repeat right 7px center; }
+
+/* SEARCHABLE SELECT */
+.search-select-wrap { position: relative; }
+.search-select-input { height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 28px 0 10px; font-size: 13px; color: #333; outline: none; background: #fff; font-family: inherit; width: 100%; transition: border-color 0.15s; }
+.search-select-input:focus { border-color: #0B7B6B; box-shadow: 0 0 0 2px rgba(11,123,107,0.08); }
+.search-select-input::placeholder { color: #bbb; }
+.search-select-arrow { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.search-select-dropdown { position: absolute; top: calc(100% + 2px); left: 0; right: 0; background: #fff; border: 1px solid #d9d9d9; border-radius: 4px; box-shadow: 0 4px 16px rgba(0,0,0,0.10); z-index: 400; max-height: 200px; overflow-y: auto; display: none; }
+.search-select-dropdown.open { display: block; }
+.ss-option { padding: 7px 12px; font-size: 13px; color: #333; cursor: pointer; transition: background 0.1s; }
+.ss-option:hover { background: #f7fffd; color: #0B7B6B; }
+.ss-empty { padding: 10px 12px; font-size: 13px; color: #bbb; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: flex; align-items: center; justify-content: center; }
+.modal-overlay.hidden { display: none; }
+.modal-box { background: #fff; border-radius: 6px; width: 520px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); display: flex; flex-direction: column; }
+.modal-header { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.modal-title { font-size: 15px; font-weight: 600; color: #222; }
+.modal-close { width: 28px; height: 28px; border: none; background: none; cursor: pointer; font-size: 18px; color: #aaa; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: background 0.12s; }
+.modal-close:hover { background: #f5f5f5; color: #555; }
+.modal-body { padding: 20px 24px; }
+.modal-footer { padding: 14px 20px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
+
+/* FORM */
+.form-row { display: flex; align-items: flex-start; margin-bottom: 18px; }
+.form-row:last-child { margin-bottom: 0; }
+.form-label { width: 130px; min-width: 130px; font-size: 13px; color: #555; padding-top: 7px; flex-shrink: 0; line-height: 1.4; }
+.form-label .req { color: #D93025; margin-right: 2px; }
+.form-label .hint { display: block; font-size: 11px; color: #bbb; margin-top: 2px; }
+.form-content { flex: 1; min-width: 0; }
+.form-control { height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 10px; font-size: 13px; color: #333; outline: none; background: #fff; transition: border-color 0.15s; font-family: inherit; width: 100%; }
+.form-control:focus { border-color: #0B7B6B; box-shadow: 0 0 0 2px rgba(11,123,107,0.08); }
+.form-control::placeholder { color: #bbb; }
+.form-hint { margin-top: 5px; font-size: 12px; color: #aaa; line-height: 1.5; }
+.apollo-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #888; background: #f5f5f5; border-radius: 3px; padding: 1px 6px; margin-top: 5px; }
+
+/* CONFIRM */
+.confirm-box { background: #fff; border-radius: 6px; width: 400px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); padding: 28px 24px 20px; }
+.confirm-title { font-size: 15px; font-weight: 600; color: #222; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.confirm-desc { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 20px; }
+.confirm-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+/* TOAST */
+.toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.75); color: #fff; padding: 8px 20px; border-radius: 4px; font-size: 13px; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L13 5V11L8 14L3 11V5L8 2Z" stroke="white" stroke-width="1.5" fill="none"/><path d="M8 5V11M5.5 6.5L8 5L10.5 6.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+      充电运营平台
+    </div>
+    <div class="menu-section">
+      <div class="menu-group-label">基础配置</div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+        <span class="menu-item-text">定价管理</span>
+      </div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 4v3.5l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span class="menu-item-text">电价管理</span>
+      </div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h7M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span class="menu-item-text">车系管理</span>
+      </div>
+      <div class="menu-item active">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 3h12v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z" stroke="currentColor" stroke-width="1.3"/><path d="M1 3l2-2h8l2 2" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 6.5l2 2 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="menu-item-text">白名单车系库</span>
+      </div>
+      <div class="menu-group-label">月卡管理</div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M1 6h12" stroke="currentColor" stroke-width="1.3"/></svg>
+        <span class="menu-item-text">月卡策略列表</span>
+      </div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h7M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span class="menu-item-text">月卡明细</span>
+      </div>
+      <div class="menu-group-label">运营工具</div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L8.8 5.2L13 5.8L10 8.7L10.7 13L7 11L3.3 13L4 8.7L1 5.8L5.2 5.2L7 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        <span class="menu-item-text">活动中心</span>
+      </div>
+      <div class="menu-group-label">系统</div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 12c0-2.8 2.2-4 5-4s5 1.2 5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span class="menu-item-text">账务管理</span>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="avatar">范</div>
+      <span class="avatar-name">范文杰</span>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">基础配置 / 白名单车系库</div>
+    <div class="page-body">
+
+      <div class="breadcrumb">
+        <span class="bc-path">基础配置</span>
+        <span class="bc-sep">/</span>
+        <span class="bc-current">白名单车系库</span>
+      </div>
+
+      <!-- 筛选 -->
+      <div class="card">
+        <div class="filter-row">
+          <div class="filter-field">
+            <div class="filter-label">品牌</div>
+            <div class="search-select-wrap" style="width:120px">
+              <input class="search-select-input" id="f-brand" placeholder="全部品牌" autocomplete="off"
+                oninput="filterSS('f-brand','f-brand-dd')" onfocus="openSS('f-brand-dd')">
+              <svg class="search-select-arrow" width="10" height="5" viewBox="0 0 10 5"><path d="M0 0l5 5 5-5z" fill="#bbb"/></svg>
+              <div class="search-select-dropdown" id="f-brand-dd">
+                <div class="ss-option" onclick="selectSS('f-brand','f-brand-dd','')">全部品牌</div>
+                <div class="ss-option" onclick="selectSS('f-brand','f-brand-dd','理想')">理想</div>
+                <div class="ss-option" onclick="selectSS('f-brand','f-brand-dd','特斯拉')">特斯拉</div>
+                <div class="ss-option" onclick="selectSS('f-brand','f-brand-dd','比亚迪')">比亚迪</div>
+                <div class="ss-option" onclick="selectSS('f-brand','f-brand-dd','小米')">小米</div>
+                <div class="ss-option" onclick="selectSS('f-brand','f-brand-dd','问界')">问界</div>
+              </div>
+            </div>
+          </div>
+          <div class="filter-field">
+            <div class="filter-label">状态</div>
+            <select class="filter-control" id="f-status" style="width:110px">
+              <option value="">全部状态</option>
+              <option value="active">启用中</option>
+              <option value="disabled">已停用</option>
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-primary" onclick="doSearch()">查询</button>
+            <button class="btn btn-default" onclick="doReset()">重置</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 列表 -->
+      <div class="card">
+        <div class="result-header">
+          <div class="result-title">
+            <div class="result-title-dot"></div>
+            白名单车系列表
+            <span class="result-count">共 <span id="total-count">0</span> 条</span>
+          </div>
+          <button class="btn btn-primary" onclick="openModal()">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            新增车系
+          </button>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:80px">品牌</th>
+              <th style="width:130px">VIN 前 8 位</th>
+              <th style="width:160px">车系编码</th>
+              <th style="width:200px">车系描述（业务概念）</th>
+              <th style="width:90px">状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+
+        <div class="pagination">
+          <div class="page-info">第 <span id="page-start">1</span>–<span id="page-end">10</span> 条，共 <span id="page-total">0</span> 条</div>
+          <div class="page-controls">
+            <select class="page-size-select" id="page-size" onchange="changePageSize()">
+              <option value="10">10 条/页</option>
+              <option value="20">20 条/页</option>
+              <option value="50">50 条/页</option>
+            </select>
+            <button class="page-btn" id="btn-prev" onclick="goPage(-1)">
+              <svg width="7" height="11" viewBox="0 0 7 11" fill="none"><path d="M6 1L1 5.5L6 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <span id="page-nums"></span>
+            <button class="page-btn" id="btn-next" onclick="goPage(1)">
+              <svg width="7" height="11" viewBox="0 0 7 11" fill="none"><path d="M1 1l5 4.5L1 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 新增 / 编辑弹窗 -->
+<div class="modal-overlay hidden" id="form-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">新增车系</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="form-row">
+        <div class="form-label"><span class="req">*</span>品牌</div>
+        <div class="form-content">
+          <input class="form-control" id="f-brand-modal" type="text" placeholder="请输入品牌名称">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label"><span class="req">*</span>VIN 前 8 位</div>
+        <div class="form-content">
+          <input class="form-control" id="f-vin-modal" type="text" placeholder="请输入 VIN 前 8 位" maxlength="8">
+          <div class="form-hint">固定 8 位字符，区分大小写</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label">
+          <span class="req">*</span>车系编码
+          <span class="hint">Apollo 枚举</span>
+        </div>
+        <div class="form-content">
+          <div class="search-select-wrap">
+            <input class="search-select-input" id="f-code-modal" placeholder="请搜索或选择车系编码" autocomplete="off"
+              oninput="filterSS('f-code-modal','f-code-modal-dd');onCodeChange()"
+              onfocus="openSS('f-code-modal-dd')">
+            <svg class="search-select-arrow" width="10" height="5" viewBox="0 0 10 5"><path d="M0 0l5 5 5-5z" fill="#bbb"/></svg>
+            <div class="search-select-dropdown" id="f-code-modal-dd">
+              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','x11');onCodeChange()">x11</div>
+              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L9_2023');onCodeChange()">LSSG_L9_2023</div>
+              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L7_2023');onCodeChange()">LSSG_L7_2023</div>
+              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L6_2024');onCodeChange()">LSSG_L6_2024</div>
+              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_MEGA_2024');onCodeChange()">LSSG_MEGA_2024</div>
+              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L8_2023');onCodeChange()">LSSG_L8_2023</div>
+              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L7PRO_2024');onCodeChange()">LSSG_L7PRO_2024</div>
+              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','TSLA_MY_2023');onCodeChange()">TSLA_MY_2023</div>
+              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','TSLA_M3_2024');onCodeChange()">TSLA_M3_2024</div>
+              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','BYD_HAN_2024');onCodeChange()">BYD_HAN_2024</div>
+              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','XIAOMI_SU7_2024');onCodeChange()">XIAOMI_SU7_2024</div>
+            </div>
+          </div>
+          <div class="apollo-badge">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#888" stroke-width="1.2"/><path d="M5 3v2.5l1.5 1.5" stroke="#888" stroke-width="1.1" stroke-linecap="round"/></svg>
+            枚举值由 Apollo 配置维护
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-label">
+          <span class="req">*</span>车系描述
+          <span class="hint">业务概念 · 随编码联动</span>
+        </div>
+        <div class="form-content">
+          <input class="form-control" id="f-desc-modal" type="text" readonly
+            placeholder="选择车系编码后自动填入"
+            style="background:#fafafa;color:#555;cursor:not-allowed">
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveRecord()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 停用 / 启用确认弹窗 -->
+<div class="modal-overlay hidden" id="confirm-modal">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirm-title">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#E8860A" stroke-width="1.4"/><path d="M8 5v3.5M8 11h.01" stroke="#E8860A" stroke-width="1.5" stroke-linecap="round"/></svg>
+      确认停用
+    </div>
+    <div class="confirm-desc" id="confirm-desc"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-default" onclick="closeConfirm()">取消</button>
+      <button class="btn btn-primary" id="confirm-ok-btn" onclick="confirmToggle()">确认</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CODE_DESC_MAP = {
+  'x11':            '26款理想L9',
+  'LSSG_L9_2023':   '理想 L9（2023款）',
+  'LSSG_L7_2023':   '理想 L7（2023款）',
+  'LSSG_L6_2024':   '理想 L6（2024款）',
+  'LSSG_MEGA_2024': '理想 MEGA（2024款）',
+  'LSSG_L8_2023':   '理想 L8（2023款）',
+  'LSSG_L7PRO_2024':'理想 L7 Pro（2024款）',
+  'TSLA_MY_2023':   '特斯拉 Model Y（2023款）',
+  'TSLA_M3_2024':   '特斯拉 Model 3（2024款）',
+  'BYD_HAN_2024':   '比亚迪 汉（2024款）',
+  'XIAOMI_SU7_2024':'小米 SU7（2024款）',
+};
+
+let ALL_DATA = [
+  { id:1, brand:'理想',  vin:'LSSGAAA1', code:'x11',           desc:'26款理想L9',              status:'active'   },
+  { id:2, brand:'理想',  vin:'LSSGBBB2', code:'LSSG_L7_2023',  desc:'理想 L7（2023款）',        status:'active'   },
+  { id:3, brand:'理想',  vin:'LSSGCCC3', code:'LSSG_L8_2023',  desc:'理想 L8（2023款）',        status:'active'   },
+  { id:4, brand:'理想',  vin:'LSSGDDD4', code:'LSSG_L6_2024',  desc:'理想 L6（2024款）',        status:'disabled' },
+  { id:5, brand:'理想',  vin:'LSSGEEE5', code:'LSSG_MEGA_2024',desc:'理想 MEGA（2024款）',      status:'active'   },
+  { id:6, brand:'特斯拉',vin:'5YJYGDEE', code:'TSLA_MY_2023',  desc:'特斯拉 Model Y（2023款）', status:'active'   },
+  { id:7, brand:'比亚迪',vin:'LGXCE4CB', code:'BYD_HAN_2024',  desc:'比亚迪 汉（2024款）',      status:'disabled' },
+  { id:8, brand:'小米',  vin:'LRBYGAAA', code:'XIAOMI_SU7_2024',desc:'小米 SU7（2024款）',      status:'active'   },
+];
+let nextId = 9;
+let currentData = [...ALL_DATA];
+let page = 1, pageSize = 10;
+let editingId = null, togglingId = null;
+
+function doSearch() {
+  const brand  = document.getElementById('f-brand').value.trim();
+  const status = document.getElementById('f-status').value;
+  currentData = ALL_DATA.filter(r => {
+    if (brand  && r.brand !== brand) return false;
+    if (status && r.status !== status) return false;
+    return true;
+  });
+  page = 1; renderTable();
+}
+function doReset() {
+  document.getElementById('f-brand').value  = '';
+  document.getElementById('f-status').value = '';
+  currentData = [...ALL_DATA]; page = 1; renderTable();
+}
+
+function renderTable() {
+  const total = currentData.length;
+  const start = (page - 1) * pageSize;
+  const end   = Math.min(start + pageSize, total);
+  const rows  = currentData.slice(start, end);
+
+  document.getElementById('total-count').textContent = total;
+  document.getElementById('page-total').textContent  = total;
+  document.getElementById('page-start').textContent  = total === 0 ? 0 : start + 1;
+  document.getElementById('page-end').textContent    = end;
+
+  const tbody = document.getElementById('table-body');
+  if (rows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">暂无数据</td></tr>`;
+  } else {
+    tbody.innerHTML = rows.map(r => {
+      const isActive = r.status === 'active';
+      const statusTag = isActive
+        ? `<span class="status-tag status-active"><span class="status-dot"></span>启用中</span>`
+        : `<span class="status-tag status-disabled"><span class="status-dot"></span>已停用</span>`;
+      const toggleBtn = isActive
+        ? `<span class="action-sep">|</span><button class="btn-warning-link" onclick="openConfirm(${r.id})">停用</button>`
+        : `<span class="action-sep">|</span><button class="btn-enable-link" onclick="openConfirm(${r.id})">启用</button>`;
+      return `<tr>
+        <td>${r.brand}</td>
+        <td class="td-mono">${r.vin}</td>
+        <td class="td-mono" style="font-size:12px">${r.code}</td>
+        <td style="color:#555">${r.desc}</td>
+        <td>${statusTag}</td>
+        <td><div class="td-actions">
+          <button class="btn-link" onclick="openEdit(${r.id})">编辑</button>
+          <span class="action-sep">|</span>
+          <button class="btn-link" onclick="showToast('操作记录：${r.desc}')">操作记录</button>
+          ${toggleBtn}
+        </div></td>
+      </tr>`;
+    }).join('');
+  }
+  renderPageNums(total);
+  document.getElementById('btn-prev').disabled = page === 1;
+  document.getElementById('btn-next').disabled = end >= total;
+}
+
+function renderPageNums(total) {
+  const totalPages = Math.ceil(total / pageSize) || 1;
+  let html = '';
+  for (let p = 1; p <= totalPages; p++) {
+    if (totalPages <= 7 || p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+      html += `<button class="page-btn${p === page ? ' active' : ''}" onclick="jumpPage(${p})">${p}</button>`;
+    else if (Math.abs(p - page) === 2)
+      html += `<span style="color:#bbb;padding:0 2px">…</span>`;
+  }
+  document.getElementById('page-nums').innerHTML = html;
+}
+
+function goPage(d) { const t = Math.ceil(currentData.length / pageSize) || 1; page = Math.max(1, Math.min(t, page + d)); renderTable(); }
+function jumpPage(p) { page = p; renderTable(); }
+function changePageSize() { pageSize = parseInt(document.getElementById('page-size').value); page = 1; renderTable(); }
+
+// ===== 弹窗 =====
+function openModal() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = '新增车系';
+  document.getElementById('f-brand-modal').value = '';
+  document.getElementById('f-vin-modal').value   = '';
+  document.getElementById('f-code-modal').value  = '';
+  document.getElementById('f-desc-modal').value  = '';
+  document.getElementById('form-modal').classList.remove('hidden');
+}
+function openEdit(id) {
+  const r = ALL_DATA.find(x => x.id === id);
+  if (!r) return;
+  editingId = id;
+  document.getElementById('modal-title').textContent = '编辑车系';
+  document.getElementById('f-brand-modal').value = r.brand;
+  document.getElementById('f-vin-modal').value   = r.vin;
+  document.getElementById('f-code-modal').value  = r.code;
+  document.getElementById('f-desc-modal').value  = r.desc;
+  document.getElementById('form-modal').classList.remove('hidden');
+}
+function closeModal() { document.getElementById('form-modal').classList.add('hidden'); }
+
+function onCodeChange() {
+  const code = document.getElementById('f-code-modal').value;
+  document.getElementById('f-desc-modal').value = CODE_DESC_MAP[code] || '';
+}
+
+function saveRecord() {
+  const brand = document.getElementById('f-brand-modal').value.trim();
+  const vin   = document.getElementById('f-vin-modal').value.trim().toUpperCase();
+  const code  = document.getElementById('f-code-modal').value.trim();
+  const desc  = document.getElementById('f-desc-modal').value.trim();
+  if (!brand) { showToast('请输入品牌'); return; }
+  if (!vin || vin.length !== 8) { showToast('VIN 前 8 位须填写 8 个字符'); return; }
+  if (!code)  { showToast('请选择车系编码'); return; }
+  if (!desc)  { showToast('车系描述不能为空'); return; }
+  if (editingId) {
+    const r = ALL_DATA.find(x => x.id === editingId);
+    if (r) { r.brand = brand; r.vin = vin; r.code = code; r.desc = desc; }
+    showToast('修改成功 ✓');
+  } else {
+    ALL_DATA.unshift({ id: nextId++, brand, vin, code, desc, status: 'active' });
+    showToast('新增成功 ✓');
+  }
+  currentData = [...ALL_DATA]; page = 1; renderTable(); closeModal();
+}
+
+// ===== 停用 / 启用 =====
+function openConfirm(id) {
+  togglingId = id;
+  const r = ALL_DATA.find(x => x.id === id);
+  const isActive = r.status === 'active';
+  document.getElementById('confirm-title').innerHTML = isActive
+    ? `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#E8860A" stroke-width="1.4"/><path d="M8 5v3.5M8 11h.01" stroke="#E8860A" stroke-width="1.5" stroke-linecap="round"/></svg> 确认停用`
+    : `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#0B7B6B" stroke-width="1.4"/><path d="M5 8l2 2 4-4" stroke="#0B7B6B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> 确认启用`;
+  document.getElementById('confirm-desc').textContent = isActive
+    ? `停用后「${r.desc}」将从白名单中移除，不再享有相关权益，确认停用？`
+    : `启用后「${r.desc}」将重新加入白名单，确认启用？`;
+  const btn = document.getElementById('confirm-ok-btn');
+  btn.textContent = isActive ? '确认停用' : '确认启用';
+  btn.style.background = isActive ? '#D48806' : '#0B7B6B';
+  btn.style.borderColor = isActive ? '#D48806' : '#0B7B6B';
+  document.getElementById('confirm-modal').classList.remove('hidden');
+}
+function closeConfirm() { document.getElementById('confirm-modal').classList.add('hidden'); }
+function confirmToggle() {
+  const r = ALL_DATA.find(x => x.id === togglingId);
+  if (r) {
+    const wasActive = r.status === 'active';
+    r.status = wasActive ? 'disabled' : 'active';
+    showToast(wasActive ? '已停用' : '已启用 ✓');
+  }
+  currentData = ALL_DATA.filter(x => currentData.some(c => c.id === x.id));
+  renderTable(); closeConfirm();
+}
+
+// ===== 可搜索下拉 =====
+function openSS(ddId) { closeAllSS(ddId); document.getElementById(ddId).classList.add('open'); }
+function closeAllSS(exceptId) { document.querySelectorAll('.search-select-dropdown').forEach(dd => { if (dd.id !== exceptId) dd.classList.remove('open'); }); }
+function filterSS(inputId, ddId) {
+  const q = document.getElementById(inputId).value.toLowerCase();
+  const dd = document.getElementById(ddId);
+  let any = false;
+  dd.querySelectorAll('.ss-option').forEach(opt => { const m = opt.textContent.toLowerCase().includes(q); opt.style.display = m ? '' : 'none'; if (m) any = true; });
+  let empty = dd.querySelector('.ss-empty');
+  if (!any) { if (!empty) { empty = document.createElement('div'); empty.className = 'ss-empty'; empty.textContent = '无匹配结果'; dd.appendChild(empty); } empty.style.display = ''; }
+  else if (empty) { empty.style.display = 'none'; }
+  dd.classList.add('open');
+}
+function selectSS(inputId, ddId, val) { document.getElementById(inputId).value = val; document.getElementById(ddId).classList.remove('open'); }
+document.addEventListener('click', (e) => { document.querySelectorAll('.search-select-wrap').forEach(wrap => { if (!wrap.contains(e.target)) wrap.querySelector('.search-select-dropdown')?.classList.remove('open'); }); });
+
+// ===== Toast =====
+function showToast(msg) { const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2200); }
+
+renderTable();
+</script>
+</body>
+</html>
