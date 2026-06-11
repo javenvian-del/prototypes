@@ -519,6 +519,34 @@ function onCodeChange() {
   document.getElementById('f-desc-modal').value = CODE_DESC_MAP[code] || '';
 }
 
+function onBrandTypeChange() {
+  const isLixiang = document.getElementById('radio-lixiang').checked;
+  document.getElementById('brand-custom-wrap').style.display = isLixiang ? 'none' : '';
+  document.getElementById('code-lixiang-wrap').style.display = isLixiang ? '' : 'none';
+  document.getElementById('code-third-wrap').style.display  = isLixiang ? 'none' : '';
+  document.getElementById('code-hint-apollo').style.display = isLixiang ? '' : 'none';
+  const descField = document.getElementById('f-desc-modal');
+  const descHint  = document.getElementById('desc-hint');
+  if (isLixiang) {
+    descField.readOnly = true;
+    descField.style.background = '#fafafa';
+    descField.style.color = '#555';
+    descField.style.cursor = 'not-allowed';
+    descField.placeholder = '选择车系编码后自动填入';
+    descHint.textContent = '业务概念 · 随编码联动';
+    onCodeChange();
+  } else {
+    descField.readOnly = false;
+    descField.style.background = '';
+    descField.style.color = '';
+    descField.style.cursor = '';
+    descField.placeholder = '请输入车系描述';
+    descHint.textContent = '业务概念';
+    document.getElementById('f-code-modal').value = '';
+    descField.value = '';
+  }
+}
+
 // ===== 可搜索下拉通用函数 =====
 function openSS(ddId) {
   closeAllSS(ddId);
