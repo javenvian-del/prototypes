@@ -701,10 +701,19 @@ function openEdit(id) {
   if (!r) return;
   editingId = id;
   document.getElementById('modal-title').textContent = '编辑车系';
-  document.getElementById('f-brand-modal').value = r.brand;
-  document.getElementById('f-vin-modal').value   = r.vin;
-  document.getElementById('f-code-modal').value  = r.code;
-  document.getElementById('f-desc-modal').value  = r.desc;
+  const isLixiang = r.brand === '理想';
+  document.getElementById('radio-lixiang').checked = isLixiang;
+  document.getElementById('radio-third').checked   = !isLixiang;
+  document.getElementById('f-brand-custom').value  = isLixiang ? '' : r.brand;
+  onBrandTypeChange();
+  document.getElementById('f-vin-modal').value  = r.vin;
+  if (isLixiang) {
+    document.getElementById('f-code-modal').value = r.code;
+    document.getElementById('f-desc-modal').value = r.desc;
+  } else {
+    document.getElementById('f-code-manual').value = r.code;
+    document.getElementById('f-desc-modal').value  = r.desc;
+  }
   setTagValues(r.tags);
   document.getElementById('form-modal').classList.remove('hidden');
 }
@@ -712,10 +721,14 @@ function openEdit(id) {
 function closeModal() { document.getElementById('form-modal').classList.add('hidden'); }
 
 function clearForm() {
-  document.getElementById('f-brand-modal').value = '';
-  document.getElementById('f-vin-modal').value   = '';
-  document.getElementById('f-code-modal').value  = '';
-  document.getElementById('f-desc-modal').value  = '';
+  document.getElementById('radio-lixiang').checked = true;
+  document.getElementById('radio-third').checked   = false;
+  document.getElementById('f-brand-custom').value  = '';
+  document.getElementById('f-vin-modal').value      = '';
+  document.getElementById('f-code-modal').value     = '';
+  document.getElementById('f-code-manual').value    = '';
+  document.getElementById('f-desc-modal').value     = '';
+  onBrandTypeChange();
   setTagValues([]);
 }
 
