@@ -362,7 +362,19 @@ select.form-control { appearance: none; -webkit-appearance: none; background-ima
       <div class="form-row">
         <div class="form-label"><span class="req">*</span>品牌</div>
         <div class="form-content">
-          <input class="form-control" id="f-brand-modal" type="text" placeholder="请输入品牌名称">
+          <div class="brand-radio-group">
+            <label class="radio-opt">
+              <input type="radio" name="brand-type" id="radio-lixiang" value="lixiang" checked onchange="onBrandTypeChange()">
+              <span>理想</span>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="brand-type" id="radio-third" value="third" onchange="onBrandTypeChange()">
+              <span>三方</span>
+            </label>
+          </div>
+          <div id="brand-custom-wrap" style="display:none;margin-top:8px">
+            <input class="form-control" id="f-brand-custom" type="text" placeholder="请输入品牌名称">
+          </div>
         </div>
       </div>
 
@@ -377,31 +389,38 @@ select.form-control { appearance: none; -webkit-appearance: none; background-ima
       <div class="form-row">
         <div class="form-label">
           <span class="req">*</span>车系编码
-          <span class="hint">Apollo 枚举</span>
+          <span class="hint" id="code-hint-apollo">Apollo 枚举</span>
         </div>
         <div class="form-content">
-          <div class="search-select-wrap">
-            <input class="search-select-input" id="f-code-modal" placeholder="请搜索或选择车系编码" autocomplete="off"
-              oninput="filterSS('f-code-modal','f-code-modal-dd');onCodeChange()"
-              onfocus="openSS('f-code-modal-dd')" onkeydown="ssDn(event,'f-code-modal-dd','f-code-modal')">
-            <svg class="search-select-arrow" width="10" height="5" viewBox="0 0 10 5"><path d="M0 0l5 5 5-5z" fill="#bbb"/></svg>
-            <div class="search-select-dropdown" id="f-code-modal-dd">
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','x11');onCodeChange()">x11</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L9_2023');onCodeChange()">LSSG_L9_2023</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L7_2023');onCodeChange()">LSSG_L7_2023</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L6_2024');onCodeChange()">LSSG_L6_2024</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_MEGA_2024');onCodeChange()">LSSG_MEGA_2024</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L8_2023');onCodeChange()">LSSG_L8_2023</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L7PRO_2024');onCodeChange()">LSSG_L7PRO_2024</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','TSLA_MY_2023');onCodeChange()">TSLA_MY_2023</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','TSLA_M3_2024');onCodeChange()">TSLA_M3_2024</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','BYD_HAN_2024');onCodeChange()">BYD_HAN_2024</div>
-              <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','XIAOMI_SU7_2024');onCodeChange()">XIAOMI_SU7_2024</div>
+          <!-- 理想模式：下拉搜索 -->
+          <div id="code-lixiang-wrap">
+            <div class="search-select-wrap">
+              <input class="search-select-input" id="f-code-modal" placeholder="请搜索或选择车系编码" autocomplete="off"
+                oninput="filterSS('f-code-modal','f-code-modal-dd');onCodeChange()"
+                onfocus="openSS('f-code-modal-dd')" onkeydown="ssDn(event,'f-code-modal-dd','f-code-modal')">
+              <svg class="search-select-arrow" width="10" height="5" viewBox="0 0 10 5"><path d="M0 0l5 5 5-5z" fill="#bbb"/></svg>
+              <div class="search-select-dropdown" id="f-code-modal-dd">
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','x11');onCodeChange()">x11</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L9_2023');onCodeChange()">LSSG_L9_2023</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L7_2023');onCodeChange()">LSSG_L7_2023</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L6_2024');onCodeChange()">LSSG_L6_2024</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_MEGA_2024');onCodeChange()">LSSG_MEGA_2024</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L8_2023');onCodeChange()">LSSG_L8_2023</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','LSSG_L7PRO_2024');onCodeChange()">LSSG_L7PRO_2024</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','TSLA_MY_2023');onCodeChange()">TSLA_MY_2023</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','TSLA_M3_2024');onCodeChange()">TSLA_M3_2024</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','BYD_HAN_2024');onCodeChange()">BYD_HAN_2024</div>
+                <div class="ss-option" onclick="selectSS('f-code-modal','f-code-modal-dd','XIAOMI_SU7_2024');onCodeChange()">XIAOMI_SU7_2024</div>
+              </div>
+            </div>
+            <div class="apollo-badge">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#888" stroke-width="1.2"/><path d="M5 3v2.5l1.5 1.5" stroke="#888" stroke-width="1.1" stroke-linecap="round"/></svg>
+              枚举值由 Apollo 配置维护
             </div>
           </div>
-          <div class="apollo-badge">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#888" stroke-width="1.2"/><path d="M5 3v2.5l1.5 1.5" stroke="#888" stroke-width="1.1" stroke-linecap="round"/></svg>
-            枚举值由 Apollo 配置维护
+          <!-- 三方模式：手动输入 -->
+          <div id="code-third-wrap" style="display:none">
+            <input class="form-control" id="f-code-manual" type="text" placeholder="请输入车系编码">
           </div>
         </div>
       </div>
@@ -409,7 +428,7 @@ select.form-control { appearance: none; -webkit-appearance: none; background-ima
       <div class="form-row">
         <div class="form-label">
           <span class="req">*</span>车系描述
-          <span class="hint">业务概念 · 随编码联动</span>
+          <span class="hint" id="desc-hint">业务概念 · 随编码联动</span>
         </div>
         <div class="form-content">
           <input class="form-control" id="f-desc-modal" type="text" readonly
