@@ -591,13 +591,16 @@ function onBrandTypeChange() {
 }
 
 function saveRecord() {
-  const brand = document.getElementById('f-brand-modal').value.trim();
+  const isLixiang = document.getElementById('radio-lixiang').checked;
+  const brand = isLixiang ? '理想' : document.getElementById('f-brand-custom').value.trim();
   const vin   = document.getElementById('f-vin-modal').value.trim().toUpperCase();
-  const code  = document.getElementById('f-code-modal').value.trim();
+  const code  = isLixiang
+    ? document.getElementById('f-code-modal').value.trim()
+    : document.getElementById('f-code-manual').value.trim();
   const desc  = document.getElementById('f-desc-modal').value.trim();
-  if (!brand) { showToast('请输入品牌'); return; }
+  if (!brand) { showToast('请输入品牌名称'); return; }
   if (!vin || vin.length !== 8) { showToast('VIN 前 8 位须填写 8 个字符'); return; }
-  if (!code)  { showToast('请选择车系编码'); return; }
+  if (!code)  { showToast(isLixiang ? '请选择车系编码' : '请输入车系编码'); return; }
   if (!desc)  { showToast('车系描述不能为空'); return; }
   if (editingId) {
     const r = ALL_DATA.find(x => x.id === editingId);
