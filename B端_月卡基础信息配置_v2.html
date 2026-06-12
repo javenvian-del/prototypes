@@ -775,7 +775,7 @@
             <span class="hint">活动页展示图片</span>
           </div>
           <div class="form-content">
-            <div class="upload-box" id="upload-exclusive" onclick="triggerUpload('exclusive')" style="max-width:360px">
+            <div class="upload-box" id="upload-exclusive" onclick="triggerUpload('exclusive')" style="max-width:360px;aspect-ratio:358/102;height:auto;min-height:60px;">
               <div class="upload-icon">
                 <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
                   <path d="M4 18v4a2 2 0 002 2h16a2 2 0 002-2v-4" stroke="#ccc" stroke-width="1.6" stroke-linecap="round"/>
@@ -783,7 +783,7 @@
                 </svg>
               </div>
               <div class="upload-text">点击上传</div>
-              <div class="upload-sub">支持 JPG / PNG，建议 750×400px</div>
+              <div class="upload-sub">JPG / PNG，建议 358×102px，等比例上传即可</div>
             </div>
             <input type="file" id="file-exclusive" accept="image/*" style="display:none" onchange="handleUpload(event,'exclusive')">
           </div>
