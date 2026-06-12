@@ -363,8 +363,8 @@ function buildTable(theadId, tbodyId, cols, rows) {
       if (c.muted)     style += 'color:#999;font-size:12px;';
       if (c.mono)      style += 'font-family:monospace;font-size:12px;';
       if (c.highlight) style += 'background:#fff7e6;color:#d48806;font-weight:500;';
-      if (c.sticky)    style += `position:sticky;${c.sticky};z-index:1;background:inherit;`;
-      if (c.op)        style += 'position:sticky;right:0;z-index:1;background:inherit;';
+      if (c.sticky)    style += `position:sticky;${c.sticky};z-index:1;background:#fff;`;
+      if (c.op)        style += 'position:sticky;right:0;z-index:1;background:#fff;';
       let cell = val;
       if (c.badge === 'pay')     cell = payBadge(val);
       if (c.badge === 'invoice') cell = invoiceBadge(val);
