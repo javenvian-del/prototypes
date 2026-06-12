@@ -1201,9 +1201,6 @@ savedKwh = newVal;
     showToast(skuLabels[key] + ' 已保存 ✓');
   }
 
-  // 页面加载时，对已有值的字段直接锁定
-  Object.keys(skuIds).forEach(key => { if (skuIds[key]) lockSkuView(key); });
-
   function startEdit(key) {
     const input = document.getElementById(key + '-input');
     input.value = weaponIds[key];
