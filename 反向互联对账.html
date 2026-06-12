@@ -373,7 +373,7 @@ function buildTable(theadId, tbodyId, cols, rows) {
       if (c.right && !c.badge && !c.op) cell = Number(val) ? Number(val).toLocaleString() : val;
       return `<td style="${style}">${cell}</td>`;
     }).join('');
-    return `<tr><td class="col-check" style="position:sticky;left:0;z-index:1;background:inherit"><div class="row-check" onclick="this.classList.toggle('checked')"></div></td>${cells}</tr>`;
+    return `<tr><td class="col-check" style="position:sticky;left:0;z-index:1;background:#fff"><div class="row-check" onclick="this.classList.toggle('checked')"></div></td>${cells}</tr>`;
   }).join('');
 }
 
