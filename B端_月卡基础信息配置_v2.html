@@ -1175,11 +1175,6 @@ savedKwh = newVal;
     'third-single':  '非车主单月购买 SKU'
   };
 
-  function lockSkuView(key) {
-    const btn = document.querySelector('#sku-' + key + '-view button');
-    if (btn) btn.remove();
-  }
-
   function startSkuEdit(key) {
     const input = document.getElementById('sku-' + key + '-input');
     input.value = skuIds[key];
