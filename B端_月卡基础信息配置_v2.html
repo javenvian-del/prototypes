@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>月卡基础信息配置 — 充电运营平台</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      color: #333;
+      background: #F0F2F0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ===== APP SHELL ===== */
+    .app { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 188px;
+      min-width: 188px;
+      background: #1A3530;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .sidebar::-webkit-scrollbar { width: 0; }
+
+    .sidebar-logo {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 0.3px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+    .logo-icon {
+      width: 28px; height: 28px;
+      background: #0B7B6B;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .menu-section { padding: 6px 0; }
+    .menu-group-label {
+      padding: 10px 16px 4px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.5px;
+      user-select: none;
+    }
+    .menu-item {
+      display: flex; align-items: center;
+      padding: 9px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+      transition: background 0.15s, color 0.15s;
+      gap: 8px;
+      user-select: none;
+    }
+    .menu-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+    .menu-item.active { background: #0B7B6B; color: #fff; }
+    .menu-item-text { flex: 1; }
+    .menu-arrow { font-size: 10px; opacity: 0.4; }
+    .menu-sub .menu-item { padding-left: 40px; }
+    .menu-sub .menu-item.active { background: rgba(11,123,107,0.6); }
+
+    .sidebar-footer {
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; gap: 8px;
+      margin-top: auto;
+      flex-shrink: 0;
+    }
+    .avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #0B7B6B;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: #fff;
+      flex-shrink: 0;
+    }
+    .avatar-name { font-size: 13px; color: rgba(255,255,255,0.65); }
+
+    /* ===== MAIN ===== */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+    .topbar {
+      height: 46px;
+      background: #fff;
+      border-bottom: 1px solid #e8e8e8;
+      display: flex; align-items: center;
+      padding: 0 24px;
+      font-size: 15px; font-weight: 500; color: #222;
+      flex-shrink: 0;
+    }
+    .page-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 24px 40px;
+    }
+    .page-body::-webkit-scrollbar { width: 5px; }
+    .page-body::-webkit-scrollbar-thumb { background: #d9d9d9; border-radius: 3px; }
+
+    /* ===== BREADCRUMB ===== */
+    .breadcrumb {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 16px; font-size: 13px;
+    }
+    .bc-path { color: #999; cursor: pointer; }
+    .bc-path:hover { color: #0B7B6B; }
+    .bc-sep { color: #ddd; }
+    .bc-current { color: #333; }
+
+    /* ===== CARD ===== */
+    .card {
+      background: #fff;
+      border-radius: 4px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 14px; font-weight: 600; color: #222;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title-dot {
+      width: 3px; height: 14px;
+      background: #0B7B6B;
+      border-radius: 2px;
+    }
+
+    /* ===== FORM ===== */
+    .form-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      margin-bottom: 20px;
+    }
+    .form-row:last-child { margin-bottom: 0; }
+    .form-label {
+      width: 160px;
+      min-width: 160px;
+      font-size: 13px;
+      color: #555;
+      padding-top: 7px;
+      line-height: 1.4;
+      flex-shrink: 0;
+    }
+    .form-label .required {
+      color: #D93025;
+      margin-right: 2px;
+    }
+    .form-label .hint {
+      display: block;
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 3px;
+      font-weight: 400;
+    }
+    .form-content { flex: 1; min-width: 0; }
+
+    .form-control {
+      height: 32px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      padding: 0 10px;
+      font-size: 13px;
+      color: #333;
+      outline: none;
+      background: #fff;
+      transition: border-color 0.15s;
+      font-family: inherit;
+    }
+    .form-control:focus { border-color: #0B7B6B; box-shadow: 0 0 0 2px rgba(11,123,107,0.08); }
+    .form-control::placeholder { color: #bbb; }
+
+    .input-with-unit {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .input-unit { font-size: 13px; color: #666; }
+
+    .form-hint {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #aaa;
+      line-height: 1.5;
+    }
+
+    /* 表单分隔线 */
+    .form-divider {
+      border: none;
+      border-top: 1px dashed #f0f0f0;
+      margin: 4px 0 20px;
+    }
+
+    /* ===== 素材上传区域 ===== */
+    .material-grid {
+      display: flex; gap: 16px;
+    }
+    .material-item {
+      flex: 1;
+    }
+    .material-label-sub {
+      font-size: 12px; color: #666; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .material-label-sub .required { color: #D93025; }
+    .upload-box {
+      width: 100%;
+      height: 120px;
+      border: 1.5px dashed #d9d9d9;
+      border-radius: 4px;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      gap: 6px;
+    }
+    .upload-box:hover { border-color: #0B7B6B; background: #f0faf8; }
+    .upload-icon {
+      font-size: 24px; color: #ccc;
+    }
+    .upload-text { font-size: 13px; color: #0B7B6B; }
+    .upload-sub { font-size: 12px; color: #aaa; }
+
+    .upload-preview {
+      width: 100%; height: 120px;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid #e8e8e8;
+    }
+    .preview-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .preview-actions {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex; justify-content: center; gap: 16px;
+      padding: 6px;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .upload-preview:hover .preview-actions { opacity: 1; }
+    .preview-action {
+      font-size: 12px; color: #fff; cursor: pointer;
+    }
+
+    /* ===== 优惠券选择区 ===== */
+    .coupon-selector {
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .coupon-table {
+      border: 1px solid #e8e8e8;
+      border-radius: 4px;
+      overflow: hidden;
+      font-size: 13px;
+    }
+    .coupon-table-header {
+      display: grid;
+      grid-template-columns: 1fr 130px 90px 150px 36px;
+      background: #fafafa;
+      border-bottom: 1px solid #e8e8e8;
+      padding: 7px 12px;
+      color: #aaa;
+      font-size: 12px;
+    }
+    .coupon-row {
+      display: grid;
+      grid-template-columns: 1fr 130px 90px 150px 36px;
+      align-items: center;
+      padding: 9px 12px;
+      border-bottom: 1px solid #f5f5f5;
+      transition: background 0.12s;
+    }
+    .coupon-row:last-child { border-bottom: none; }
+    .coupon-row:hover { background: #f7fffd; }
+    .coupon-row-name { color: #222; line-height: 1.4; }
+    .coupon-qty-cell {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .qty-stepper {
+      display: flex; align-items: center;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+    .qty-btn {
+      width: 28px; height: 28px;
+      background: #fafafa;
+      border: none; cursor: pointer;
+      font-size: 16px; color: #555;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.12s;
+      user-select: none;
+    }
+    .qty-btn:hover { background: #EAF7F4; color: #0B7B6B; }
+    .qty-btn:disabled { color: #ccc; cursor: not-allowed; }
+    .qty-input {
+      width: 36px; height: 28px;
+      border: none; border-left: 1px solid #e8e8e8; border-right: 1px solid #e8e8e8;
+      text-align: center;
+      font-size: 13px; color: #333;
+      outline: none;
+      font-family: inherit;
+    }
+    .qty-unit { font-size: 12px; color: #888; }
+    .coupon-row-del {
+      display: flex; align-items: center; justify-content: center;
+      color: #ccc; cursor: pointer; font-size: 16px;
+      transition: color 0.12s;
+    }
+    .coupon-row-del:hover { color: #D93025; }
+    .coupon-empty {
+      font-size: 13px; color: #bbb;
+      padding: 6px 0;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      height: 32px;
+      padding: 0 16px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      transition: all 0.15s;
+      border: none;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+    .btn-primary { background: #0B7B6B; color: #fff; border: 1px solid #0B7B6B; }
+    .btn-primary:hover { background: #096B5D; }
+    .btn-default { background: #fff; color: #555; border: 1px solid #d9d9d9; }
+    .btn-default:hover { border-color: #0B7B6B; color: #0B7B6B; }
+    .btn-link { background: none; border: none; color: #0B7B6B; padding: 0; height: auto; font-size: 13px; cursor: pointer; }
+    .btn-link:hover { text-decoration: underline; }
+
+    /* ===== 单选组 ===== */
+    .radio-group { display: flex; align-items: center; gap: 20px; }
+    .radio-label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; color: #333; cursor: pointer;
+    }
+    .radio-label input[type="radio"] {
+      accent-color: #0B7B6B; width: 14px; height: 14px; cursor: pointer;
+    }
+    /* 有效期子行 */
+    .validity-sub-row {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 10px;
+    }
+    .validity-sub-row:last-child { margin-bottom: 0; }
+    .validity-sub-label {
+      font-size: 13px; color: #888; width: 56px; flex-shrink: 0;
+    }
+
+    /* ===== 操作日志 ===== */
+    .log-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .log-table thead tr { border-bottom: 1px solid #f0f0f0; }
+    .log-table thead th {
+      padding: 9px 12px; text-align: left;
+      font-weight: normal; color: #aaa; white-space: nowrap;
+    }
+    .log-table tbody tr { border-bottom: 1px solid #f5f5f5; transition: background 0.12s; }
+    .log-table tbody tr:hover { background: #f7fffd; }
+    .log-table tbody td { padding: 10px 12px; color: #333; vertical-align: middle; }
+    .log-summary { color: #555; }
+    .log-summary em { color: #0B7B6B; font-style: normal; font-weight: 500; }
+    .log-table td.merge-cell { vertical-align: middle; }
+    .log-val-before { color: #D93025; }
+    .log-val-after  { color: #0B7B6B; }
+
+    /* 日志分页 */
+    .log-pagination {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 14px; padding-top: 12px; border-top: 1px solid #f0f0f0;
+    }
+    .log-page-info { font-size: 13px; color: #888; }
+    .log-page-info span { color: #333; font-weight: 500; }
+    .log-page-controls { display: flex; align-items: center; gap: 6px; }
+    .log-page-btn {
+      height: 28px; min-width: 28px; padding: 0 8px;
+      border: 1px solid #d9d9d9; border-radius: 4px;
+      background: #fff; font-size: 13px; color: #555;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+      transition: all 0.12s; font-family: inherit;
+    }
+    .log-page-btn:hover:not(:disabled) { border-color: #0B7B6B; color: #0B7B6B; }
+    .log-page-btn.active { background: #0B7B6B; border-color: #0B7B6B; color: #fff; cursor: default; }
+    .log-page-btn:disabled { color: #ccc; cursor: not-allowed; }
+    .log-page-size-select {
+      height: 28px; border: 1px solid #d9d9d9; border-radius: 4px;
+      padding: 0 22px 0 8px; font-size: 13px; color: #555;
+      outline: none; cursor: pointer; font-family: inherit;
+      appearance: none; -webkit-appearance: none;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E") no-repeat right 7px center;
+    }
+    .log-summary-tag {
+      display: inline-block; font-size: 12px; color: #888;
+      background: #f5f5f5; border-radius: 3px; padding: 1px 6px;
+    }
+
+    /* 详情弹窗 */
+    .detail-modal-box {
+      background: #fff; border-radius: 6px;
+      width: 600px; max-height: 75vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+    .diff-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .diff-table th {
+      background: #fafafa; padding: 8px 14px;
+      text-align: left; font-weight: 500; color: #777;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .diff-table td { padding: 10px 14px; border-bottom: 1px solid #f5f5f5; vertical-align: top; color: #333; }
+    .diff-table tr:last-child td { border-bottom: none; }
+    .diff-field { font-weight: 500; color: #555; white-space: nowrap; }
+    .diff-before { color: #D93025; background: #fff8f8; border-radius: 3px; padding: 2px 6px; }
+    .diff-after  { color: #0B7B6B; background: #f0faf8; border-radius: 3px; padding: 2px 6px; }
+
+    /* ===== 武器 ID 内联编辑 ===== */
+    .id-view-row {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .id-display {
+      font-size: 13px; color: #222;
+      background: #f5f5f5; border: 1px solid #e8e8e8;
+      border-radius: 4px; padding: 4px 10px;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+      letter-spacing: 0.3px; min-width: 220px;
+      display: inline-block;
+    }
+    .id-display.id-empty {
+      color: #bbb; font-family: inherit; font-style: italic; letter-spacing: 0;
+    }
+    .id-edit-row {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .id-edit-row.hidden { display: none; }
+    .id-view-row.hidden { display: none; }
+    .btn-sm {
+      height: 28px !important; padding: 0 12px !important; font-size: 12px !important;
+    }
+
+    /* ===== 底部操作栏 - 已移除，各板块独立保存 ===== */
+
+    /* ===== 各板块查看态 ===== */
+    .field-view-grid {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 10px 12px;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    .field-view-label { color: #aaa; line-height: 1.6; padding-top: 1px; }
+    .field-view-value { color: #333; line-height: 1.6; word-break: break-all; }
+    .field-view-value.fv-empty { color: #bbb; font-style: italic; }
+    .section-edit-actions {
+      display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px;
+    }
+    .section-edit-actions-left {
+      display: flex; justify-content: flex-start; gap: 8px; margin-top: 16px;
+    }
+
+    /* ===== MODAL OVERLAY ===== */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-overlay.hidden { display: none; }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 6px;
+      width: 820px;
+      max-height: 80vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .modal-title { font-size: 15px; font-weight: 600; color: #222; }
+    .modal-close {
+      width: 28px; height: 28px;
+      border: none; background: none;
+      cursor: pointer; font-size: 18px; color: #aaa;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 4px; transition: background 0.12s;
+    }
+    .modal-close:hover { background: #f5f5f5; color: #555; }
+
+    /* 筛选区 */
+    .modal-filter {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 10px 12px;
+    }
+    .filter-field { display: flex; flex-direction: column; gap: 4px; }
+    .filter-label { font-size: 12px; color: #888; }
+    .filter-control {
+      height: 32px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      padding: 0 10px;
+      font-size: 13px; color: #333;
+      outline: none;
+      background: #fff;
+      width: 100%;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .filter-control:focus { border-color: #0B7B6B; }
+    select.filter-control {
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
+      cursor: pointer;
+    }
+    .filter-actions {
+      display: flex; justify-content: flex-end; gap: 8px;
+      margin-top: 12px;
+    }
+
+    /* 表格区 */
+    .modal-table-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 20px;
+    }
+    .modal-table-wrap::-webkit-scrollbar { width: 5px; }
+    .modal-table-wrap::-webkit-scrollbar-thumb { background: #d9d9d9; border-radius: 3px; }
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table thead tr { border-bottom: 1px solid #f0f0f0; position: sticky; top: 0; background: #fff; z-index: 1; }
+    .data-table thead th {
+      padding: 11px 10px;
+      text-align: left;
+      font-weight: normal;
+      color: #aaa;
+      white-space: nowrap;
+    }
+    .data-table tbody tr { border-bottom: 1px solid #f5f5f5; transition: background 0.12s; }
+    .data-table tbody tr:hover { background: #f7fffd; }
+    .data-table tbody td { padding: 11px 10px; color: #333; vertical-align: top; }
+    .td-name { font-weight: 500; color: #222; }
+    .td-code { font-size: 12px; color: #aaa; margin-top: 2px; }
+
+    /* 自定义 checkbox */
+    .row-check {
+      width: 16px; height: 16px;
+      border: 1.5px solid #d9d9d9;
+      border-radius: 3px;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.12s;
+    }
+    .row-check.checked { background: #0B7B6B; border-color: #0B7B6B; }
+    .row-check.checked::after {
+      content: '';
+      width: 9px; height: 5px;
+      border-left: 1.5px solid #fff;
+      border-bottom: 1.5px solid #fff;
+      transform: rotate(-45deg) translate(1px, -1px);
+    }
+
+    .modal-footer {
+      padding: 14px 20px;
+      border-top: 1px solid #f0f0f0;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .modal-footer-info { font-size: 13px; color: #888; }
+    .modal-footer-info span { color: #0B7B6B; font-weight: 500; }
+    .modal-footer-actions { display: flex; gap: 10px; }
+
+    /* toast */
+    .toast {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      padding: 8px 20px;
+      border-radius: 4px;
+      font-size: 13px;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== SIDEBAR ===== -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2L13 5V11L8 14L3 11V5L8 2Z" stroke="white" stroke-width="1.5" fill="none"/>
+          <path d="M8 5V11M5.5 6.5L8 5L10.5 6.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      充电运营平台
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-group-label">基础配置</div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+        <span class="menu-item-text">定价管理</span>
+      </div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 4v3.5l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span class="menu-item-text">电价管理</span>
+      </div>
+
+      <div class="menu-group-label">月卡管理</div>
+      <div class="menu-item active">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M1 6h12" stroke="currentColor" stroke-width="1.3"/></svg>
+        <span class="menu-item-text">月卡策略列表</span>
+      </div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h7M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span class="menu-item-text">月卡明细</span>
+      </div>
+
+      <div class="menu-group-label">运营工具</div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L8.8 5.2L13 5.8L10 8.7L10.7 13L7 11L3.3 13L4 8.7L1 5.8L5.2 5.2L7 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        <span class="menu-item-text">活动中心</span>
+      </div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10.5L6 4.5L9 7.5L11.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="menu-item-text">数据看板</span>
+      </div>
+
+      <div class="menu-group-label">系统</div>
+      <div class="menu-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 12c0-2.8 2.2-4 5-4s5 1.2 5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span class="menu-item-text">账务管理</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="avatar">范</div>
+      <span class="avatar-name">范文杰</span>
+    </div>
+  </div>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main">
+    <div class="topbar">月卡管理 / 基础信息配置</div>
+    <div class="page-body">
+
+      <div class="breadcrumb" style="justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="bc-path">月卡管理</span>
+          <span class="bc-sep">/</span>
+          <span class="bc-path">月卡策略列表</span>
+          <span class="bc-sep">/</span>
+          <span class="bc-current">基础信息配置</span>
+        </div>
+        <button class="btn btn-default btn-sm" onclick="showToast('操作日志')">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 4.5h6M3.5 6.5h6M3.5 8.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          操作日志
+        </button>
+      </div>
+
+      <!-- 素材配置 -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-dot"></div>
+          素材配置
+        </div>
+        <div class="form-row">
+          <div class="form-label">
+            <span class="required">*</span>详情页顶部素材
+            <span class="hint">区分用户类型分别配置</span>
+          </div>
+          <div class="form-content">
+            <div class="material-grid">
+              <!-- 理想车主 -->
+              <div class="material-item">
+                <div class="material-label-sub">
+                  <span class="required">*</span>理想车主
+                </div>
+                <div class="upload-box" id="upload-owner" onclick="triggerUpload('owner')" style="aspect-ratio:390/292;height:auto;min-height:80px;">
+                  <div class="upload-icon">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                      <path d="M4 18v4a2 2 0 002 2h16a2 2 0 002-2v-4" stroke="#ccc" stroke-width="1.6" stroke-linecap="round"/>
+                      <path d="M14 4v14M9 9l5-5 5 5" stroke="#ccc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div class="upload-text">点击上传</div>
+                  <div class="upload-sub">JPG / PNG，建议 390×292px，等比例上传即可</div>
+                </div>
+                <input type="file" id="file-owner" accept="image/*" style="display:none" onchange="handleUpload(event,'owner')">
+              </div>
+              <!-- 三方用户 -->
+              <div class="material-item">
+                <div class="material-label-sub">
+                  <span class="required">*</span>三方用户
+                </div>
+                <div class="upload-box" id="upload-third" onclick="triggerUpload('third')">
+                  <div class="upload-icon">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                      <path d="M4 18v4a2 2 0 002 2h16a2 2 0 002-2v-4" stroke="#ccc" stroke-width="1.6" stroke-linecap="round"/>
+                      <path d="M14 4v14M9 9l5-5 5 5" stroke="#ccc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div class="upload-text">点击上传</div>
+                  <div class="upload-sub">支持 JPG / PNG，建议 750×300px</div>
+                </div>
+                <input type="file" id="file-third" accept="image/*" style="display:none" onchange="handleUpload(event,'third')">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 专属活动配置 -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-dot"></div>
+          专属活动配置
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+          <div class="form-label">
+            专属活动素材
+            <span class="hint">活动页展示图片</span>
+          </div>
+          <div class="form-content">
+            <div class="upload-box" id="upload-exclusive" onclick="triggerUpload('exclusive')" style="max-width:360px">
+              <div class="upload-icon">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                  <path d="M4 18v4a2 2 0 002 2h16a2 2 0 002-2v-4" stroke="#ccc" stroke-width="1.6" stroke-linecap="round"/>
+                  <path d="M14 4v14M9 9l5-5 5 5" stroke="#ccc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="upload-text">点击上传</div>
+              <div class="upload-sub">支持 JPG / PNG，建议 750×400px</div>
+            </div>
+            <input type="file" id="file-exclusive" accept="image/*" style="display:none" onchange="handleUpload(event,'exclusive')">
+          </div>
+        </div>
+        <div class="form-row" style="margin-bottom:0;margin-top:20px">
+          <div class="form-label">
+            跳转地址
+            <span class="hint">点击活动素材后跳转</span>
+          </div>
+          <div class="form-content">
+            <!-- 查看态 -->
+            <div class="id-view-row" id="excl-url-view">
+              <span class="id-display id-empty" id="excl-url-display" style="font-family:inherit;letter-spacing:0;min-width:320px">未配置</span>
+              <button class="btn btn-default btn-sm" onclick="startEditExclusiveUrl()">编辑</button>
+            </div>
+            <!-- 编辑态 -->
+            <div class="id-edit-row hidden" id="excl-url-edit">
+              <input class="form-control" id="exclusive-url" type="text" placeholder="请输入跳转链接" style="width:380px;max-width:100%">
+              <button class="btn btn-default" onclick="cancelEditExclusiveUrl()">取消</button>
+              <button class="btn btn-primary" onclick="saveEditExclusiveUrl()">保存</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 开卡引导配置 -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-dot"></div>
+          开卡引导配置
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">
+            <span class="required">*</span>启动页开卡引导
+            <span class="hint">展示在启动页的引导文案</span>
+          </div>
+          <div class="form-content">
+            <textarea class="form-control" id="guide-copy" placeholder="请输入引导文案内容"
+              style="height:80px;width:480px;max-width:100%;resize:vertical;padding:8px 10px;line-height:1.6"></textarea>
+            <div class="form-hint">文案将展示在启动页，引导用户开通月卡</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">
+            <span class="required">*</span>购卡引导弹窗刷新时间
+            <span class="hint">距上次弹窗的间隔天数</span>
+          </div>
+          <div class="form-content">
+            <div class="input-with-unit">
+              <input class="form-control" type="number" min="1" id="continuous-trigger-n"
+                placeholder="请输入" style="width:120px" value="3">
+              <span class="input-unit">天</span>
+            </div>
+            <div class="form-hint">用户关闭购卡引导弹窗后，每隔 n 天将再次触发弹窗引导。设置越短，提醒越频繁</div>
+          </div>
+        </div>
+        <hr class="form-divider">
+        <div class="form-row">
+          <div class="form-label">
+            <span class="required">*</span>弹窗标题文案
+            <span class="hint">开卡金额 &gt; 本单可省 × 2 时</span>
+          </div>
+          <div class="form-content">
+            <input class="form-control" id="popup-title" type="text"
+              placeholder="请输入弹窗标题文案"
+              style="width:480px;max-width:100%">
+            <div class="form-hint">
+              当开卡金额大于本单预估可省金额的 2 倍时，开卡引导弹窗将采用此文案作为标题。<br>
+              例：「本次充电节省不多，但月卡还有更多次数等你用」
+            </div>
+          </div>
+        </div>
+        <div class="section-edit-actions" style="margin-top:20px">
+          <button class="btn btn-primary" onclick="saveEditGuide()">保存</button>
+        </div>
+      </div>
+
+      <!-- ④ 预估充电度数 -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-dot"></div>
+          充电预估配置
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+          <div class="form-label">
+            <span class="required">*</span>预估充电度数
+            <span class="hint">用于C端显示"本单预计可省**元"</span>
+          </div>
+          <div class="form-content">
+            <!-- 查看态 -->
+            <div class="id-view-row" id="kwh-view">
+              <span class="id-display" id="kwh-display" style="font-family:inherit;letter-spacing:0;min-width:80px">35 度</span>
+              <button class="btn btn-default btn-sm" onclick="startEditKwh()">编辑</button>
+            </div>
+            <!-- 编辑态 -->
+            <div class="id-edit-row hidden" id="kwh-edit">
+              <input class="form-control" type="number" min="1" id="est-kwh" placeholder="请输入" style="width:120px" value="35">
+              <span class="input-unit">度</span>
+              <button class="btn btn-default" onclick="cancelEditKwh()">取消</button>
+              <button class="btn btn-primary" onclick="saveEditKwh()">保存</button>
+            </div>
+            <div class="form-hint" style="margin-top:8px">根据单次充电预估度数，结合专属价差价计算用户本单预估节省金额</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ⑤ 基础权益配置 -->
+      <!-- SKU 配置 -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-dot"></div>
+          SKU 配置
+        </div>
+
+        <!-- 车主连续包月 SKU -->
+        <div class="form-row">
+          <div class="form-label">
+            <span class="required">*</span>车主连续包月 SKU
+            <span class="hint">理想车主·自动续费</span>
+          </div>
+          <div class="form-content">
+            <div class="id-view-row" id="sku-owner-monthly-view">
+              <span class="id-display" id="sku-owner-monthly-display">SKU_OWNER_MONTHLY_001</span>
+              <button class="btn btn-default btn-sm" onclick="startSkuEdit('owner-monthly')">编辑</button>
+            </div>
+            <div class="id-edit-row hidden" id="sku-owner-monthly-edit">
+              <input class="form-control" id="sku-owner-monthly-input" style="width:280px" placeholder="请输入 SKU ID">
+              <button class="btn btn-default" onclick="cancelSkuEdit('owner-monthly')">取消</button>
+              <button class="btn btn-primary" onclick="saveSkuEdit('owner-monthly')">立即保存</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 车主单月购买 SKU -->
+        <div class="form-row">
+          <div class="form-label">
+            <span class="required">*</span>车主单月购买 SKU
+            <span class="hint">理想车主·一次性购买</span>
+          </div>
+          <div class="form-content">
+            <div class="id-view-row" id="sku-owner-single-view">
+              <span class="id-display" id="sku-owner-single-display">SKU_OWNER_SINGLE_001</span>
+              <button class="btn btn-default btn-sm" onclick="startSkuEdit('owner-single')">编辑</button>
+            </div>
+            <div class="id-edit-row hidden" id="sku-owner-single-edit">
+              <input class="form-control" id="sku-owner-single-input" style="width:280px" placeholder="请输入 SKU ID">
+              <button class="btn btn-default" onclick="cancelSkuEdit('owner-single')">取消</button>
+              <button class="btn btn-primary" onclick="saveSkuEdit('owner-single')">立即保存</button>
+            </div>
+          </div>
+        </div>
+
+        <hr class="form-divider">
+
+        <!-- 非车主连续包月 SKU -->
+        <div class="form-row">
+          <div class="form-label">
+            <span class="required">*</span>非车主连续包月 SKU
+            <span class="hint">三方用户·自动续费</span>
+          </div>
+          <div class="form-content">
+            <div class="id-view-row" id="sku-third-monthly-view">
+              <span class="id-display" id="sku-third-monthly-display">SKU_THIRD_MONTHLY_001</span>
+              <button class="btn btn-default btn-sm" onclick="startSkuEdit('third-monthly')">编辑</button>
+            </div>
+            <div class="id-edit-row hidden" id="sku-third-monthly-edit">
+              <input class="form-control" id="sku-third-monthly-input" style="width:280px" placeholder="请输入 SKU ID">
+              <button class="btn btn-default" onclick="cancelSkuEdit('third-monthly')">取消</button>
+              <button class="btn btn-primary" onclick="saveSkuEdit('third-monthly')">立即保存</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 非车主单月购买 SKU -->
+        <div class="form-row" style="margin-bottom:0">
+          <div class="form-label">
+            <span class="required">*</span>非车主单月购买 SKU
+            <span class="hint">三方用户·一次性购买</span>
+          </div>
+          <div class="form-content">
+            <div class="id-view-row" id="sku-third-single-view">
+              <span class="id-display" id="sku-third-single-display">SKU_THIRD_SINGLE_001</span>
+              <button class="btn btn-default btn-sm" onclick="startSkuEdit('third-single')">编辑</button>
+            </div>
+            <div class="id-edit-row hidden" id="sku-third-single-edit">
+              <input class="form-control" id="sku-third-single-input" style="width:280px" placeholder="请输入 SKU ID">
+              <button class="btn btn-default" onclick="cancelSkuEdit('third-single')">取消</button>
+              <button class="btn btn-primary" onclick="saveSkuEdit('third-single')">立即保存</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑤ 基础权益配置 -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-dot"></div>
+          基础权益配置
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">
+            <span class="required">*</span>非车主成品武器 ID
+            <span class="hint">三方用户开卡自动发放</span>
+          </div>
+          <div class="form-content">
+            <div class="id-view-row" id="basic-view">
+              <span class="id-display" id="basic-display">WPN_BASIC_20240501001</span>
+              <button class="btn btn-default btn-sm" onclick="startEdit('basic')">编辑</button>
+            </div>
+            <div class="id-edit-row hidden" id="basic-edit">
+              <input class="form-control" id="basic-input" style="width:280px" placeholder="请输入成品武器 ID">
+              <button class="btn btn-default" onclick="cancelEdit('basic')">取消</button>
+              <button class="btn btn-primary" onclick="saveEdit('basic')">立即保存</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row" style="margin-bottom:0">
+          <div class="form-label">
+            车主成品武器 ID
+            <span class="hint">仅理想车主可享，选填</span>
+          </div>
+          <div class="form-content">
+            <div class="id-view-row" id="owner-view">
+              <span class="id-display id-empty" id="owner-display">未配置</span>
+              <button class="btn btn-default btn-sm" onclick="startEdit('owner')">编辑</button>
+            </div>
+            <div class="id-edit-row hidden" id="owner-edit">
+              <input class="form-control" id="owner-input" style="width:280px" placeholder="请输入成品武器 ID（选填）">
+              <button class="btn btn-default" onclick="cancelEdit('owner')">取消</button>
+              <button class="btn btn-primary" onclick="saveEdit('owner')">立即保存</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 券包权益补充说明 -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-dot"></div>
+          券包权益补充说明
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">
+            车主补充说明
+            <span class="hint">仅理想车主可见，选填</span>
+          </div>
+          <div class="form-content">
+            <textarea class="form-control" id="coupon-desc-owner" placeholder="请输入补充说明文案，不填则不展示"
+              style="height:80px;width:480px;max-width:100%;resize:vertical;padding:8px 10px;line-height:1.6"></textarea>
+            <div class="form-hint">用于在月卡券包权益模块下方展示补充说明，帮助车主了解权益使用规则或限制</div>
+          </div>
+        </div>
+
+        <div class="form-row" style="margin-bottom:0">
+          <div class="form-label">
+            非车主补充说明
+            <span class="hint">三方用户可见，选填</span>
+          </div>
+          <div class="form-content">
+            <textarea class="form-control" id="coupon-desc-third" placeholder="请输入补充说明文案，不填则不展示"
+              style="height:80px;width:480px;max-width:100%;resize:vertical;padding:8px 10px;line-height:1.6"></textarea>
+            <div class="form-hint">用于在月卡券包权益模块下方展示补充说明，帮助非车主了解权益使用规则或限制</div>
+          </div>
+        </div>
+
+        <div class="section-edit-actions" style="margin-top:20px">
+          <button class="btn btn-primary" onclick="saveCouponDesc()">保存</button>
+        </div>
+      </div>
+
+    </div><!-- /page-body -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ===== 武器 ID 内联编辑 =====
+  const weaponIds = {
+    basic: 'WPN_BASIC_20240501001',
+    owner: ''
+  };
+  const fieldLabels = {
+    basic: '非车主成品武器 ID',
+    owner: '车主成品武器 ID'
+  };
+
+  // 新增字段状态追踪（用于日志对比）
+  let exclusiveImgName = '';
+
+  // ===== 专属活动跳转地址 =====
+  let savedExclusiveUrl = '';
+
+  function startEditExclusiveUrl() {
+    document.getElementById('exclusive-url').value = savedExclusiveUrl;
+    document.getElementById('excl-url-view').classList.add('hidden');
+    document.getElementById('excl-url-edit').classList.remove('hidden');
+    document.getElementById('exclusive-url').focus();
+  }
+  function cancelEditExclusiveUrl() {
+    document.getElementById('excl-url-edit').classList.add('hidden');
+    document.getElementById('excl-url-view').classList.remove('hidden');
+  }
+  function saveEditExclusiveUrl() {
+    const newVal = document.getElementById('exclusive-url').value.trim();
+    const display = document.getElementById('excl-url-display');
+    if (newVal !== savedExclusiveUrl) {
+savedExclusiveUrl = newVal;
+      
+    }
+    display.textContent = newVal || '未配置';
+    display.classList.toggle('id-empty', !newVal);
+    cancelEditExclusiveUrl();
+    showToast('跳转地址已保存 ✓');
+  }
+
+  // ===== 开卡引导配置 =====
+  const savedGuide = { copy: '', n: '3', popupTitle: '' };
+
+  function saveEditGuide() {
+    const newCopy  = document.getElementById('guide-copy').value.trim();
+    const newN     = document.getElementById('continuous-trigger-n').value.trim();
+    const newPopup = document.getElementById('popup-title').value.trim();
+    if (!newCopy)  { showToast('请填写启动页开卡引导文案'); return; }
+    if (!newN || isNaN(newN) || Number(newN) < 1) { showToast('请填写购卡引导弹窗刷新时间（不小于 1 天）'); return; }
+    if (!newPopup) { showToast('请填写弹窗标题文案'); return; }
+
+    const diffs = [];
+    if (newCopy  !== savedGuide.copy)       diffs.push({ field: '启动页开卡引导文案',   before: savedGuide.copy       || '未配置', after: newCopy  });
+    if (newN     !== savedGuide.n)          diffs.push({ field: '购卡引导弹窗刷新时间', before: savedGuide.n + ' 天', after: newN + ' 天' });
+    if (newPopup !== savedGuide.popupTitle) diffs.push({ field: '开卡引导弹窗标题文案', before: savedGuide.popupTitle || '未配置', after: newPopup });
+    if (diffs.length) {
+    }
+
+    savedGuide.copy = newCopy; savedGuide.n = newN; savedGuide.popupTitle = newPopup;
+    showToast('开卡引导配置已保存 ✓');
+  }
+
+  // ===== 充电预估配置 =====
+  let savedKwh = '35';
+
+  function startEditKwh() {
+    document.getElementById('est-kwh').value = savedKwh;
+    document.getElementById('kwh-view').classList.add('hidden');
+    document.getElementById('kwh-edit').classList.remove('hidden');
+    document.getElementById('est-kwh').focus();
+  }
+  function cancelEditKwh() {
+    document.getElementById('kwh-edit').classList.add('hidden');
+    document.getElementById('kwh-view').classList.remove('hidden');
+  }
+  function saveEditKwh() {
+    const newVal = document.getElementById('est-kwh').value.trim();
+    if (!newVal || Number(newVal) < 1) { showToast('请填写有效的预估充电度数'); return; }
+    if (newVal !== savedKwh) {
+savedKwh = newVal;
+      
+    }
+    document.getElementById('kwh-display').textContent = newVal + ' 度';
+    cancelEditKwh();
+    showToast('充电预估配置已保存 ✓');
+  }
+
+  // ===== SKU 配置 =====
+  const skuIds = {
+    'owner-monthly': 'SKU_OWNER_MONTHLY_001',
+    'owner-single':  'SKU_OWNER_SINGLE_001',
+    'third-monthly': 'SKU_THIRD_MONTHLY_001',
+    'third-single':  'SKU_THIRD_SINGLE_001'
+  };
+  const skuLabels = {
+    'owner-monthly': '车主连续包月 SKU',
+    'owner-single':  '车主单月购买 SKU',
+    'third-monthly': '非车主连续包月 SKU',
+    'third-single':  '非车主单月购买 SKU'
+  };
+
+  function lockSkuView(key) {
+    const btn = document.querySelector('#sku-' + key + '-view button');
+    if (btn) btn.remove();
+  }
+
+  function startSkuEdit(key) {
+    const input = document.getElementById('sku-' + key + '-input');
+    input.value = skuIds[key];
+    document.getElementById('sku-' + key + '-view').classList.add('hidden');
+    document.getElementById('sku-' + key + '-edit').classList.remove('hidden');
+    input.focus(); input.select();
+  }
+  function cancelSkuEdit(key) {
+    document.getElementById('sku-' + key + '-edit').classList.add('hidden');
+    document.getElementById('sku-' + key + '-view').classList.remove('hidden');
+  }
+  function saveSkuEdit(key) {
+    const input = document.getElementById('sku-' + key + '-input');
+    const newVal = input.value.trim();
+    if (!newVal) { showToast(skuLabels[key] + ' 不能为空'); input.focus(); return; }
+    const oldVal = skuIds[key];
+    skuIds[key] = newVal;
+    const display = document.getElementById('sku-' + key + '-display');
+    display.textContent = newVal;
+    display.classList.remove('id-empty');
+    if (newVal !== oldVal) {
+}
+    cancelSkuEdit(key);
+    lockSkuView(key); // 首次保存后锁定，移除编辑按钮
+    showToast(skuLabels[key] + ' 已保存，不可再次修改 ✓');
+  }
+
+  // 页面加载时，对已有值的字段直接锁定
+  Object.keys(skuIds).forEach(key => { if (skuIds[key]) lockSkuView(key); });
+
+  function startEdit(key) {
+    const input = document.getElementById(key + '-input');
+    input.value = weaponIds[key];
+    document.getElementById(key + '-view').classList.add('hidden');
+    document.getElementById(key + '-edit').classList.remove('hidden');
+    input.focus();
+    input.select();
+  }
+
+  function cancelEdit(key) {
+    document.getElementById(key + '-edit').classList.add('hidden');
+    document.getElementById(key + '-view').classList.remove('hidden');
+  }
+
+  function lockWeaponView(key) {
+    const btn = document.querySelector('#' + key + '-view button');
+    if (btn) btn.remove();
+  }
+
+  function saveEdit(key) {
+    const input = document.getElementById(key + '-input');
+    const newVal = input.value.trim();
+    if (key === 'basic' && !newVal) {
+      showToast('基础权益成品武器 ID 不能为空');
+      input.focus();
+      return;
+    }
+    const oldVal = weaponIds[key];
+    weaponIds[key] = newVal;
+
+    // 更新显示
+    const display = document.getElementById(key + '-display');
+    if (newVal) {
+      display.textContent = newVal;
+      display.classList.remove('id-empty');
+    } else {
+      display.textContent = '未配置';
+      display.classList.add('id-empty');
+    }
+
+    // 写入日志
+    if (newVal !== oldVal) {
+}
+
+    cancelEdit(key);
+    lockWeaponView(key);
+    showToast(fieldLabels[key] + ' 已保存，不可再次修改 ✓');
+  }
+
+  // 页面加载时，对已有值的武器 ID 直接锁定
+  Object.keys(weaponIds).forEach(key => { if (weaponIds[key]) lockWeaponView(key); });
+
+
+  // ===== 图片上传 =====
+  function triggerUpload(type) {
+    document.getElementById('file-' + type).click();
+  }
+
+  function handleUpload(e, type) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    const box = document.getElementById('upload-' + type);
+    box.innerHTML = `
+      <div class="upload-preview" style="width:100%;height:120px">
+        <img class="preview-img" src="${url}">
+        <div class="preview-actions">
+          <span class="preview-action" onclick="event.stopPropagation();triggerUpload('${type}')">重新上传</span>
+          <span class="preview-action" onclick="event.stopPropagation();clearUpload('${type}')">删除</span>
+        </div>
+      </div>
+    `;
+    box.style.border = 'none';
+    box.style.padding = '0';
+    box.onclick = null;
+    // 专属活动图片上传日志
+    if (type === 'exclusive') {
+    exclusiveImgName = file.name;
+  }
+  }
+
+  function clearUpload(type) {
+    const box = document.getElementById('upload-' + type);
+    box.innerHTML = `
+      <div class="upload-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M4 18v4a2 2 0 002 2h16a2 2 0 002-2v-4" stroke="#ccc" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M14 4v14M9 9l5-5 5 5" stroke="#ccc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="upload-text">点击上传</div>
+      <div class="upload-sub">支持 JPG / PNG，建议 750×300px</div>
+    `;
+    box.style.border = '1.5px dashed #d9d9d9';
+    box.style.padding = '';
+    box.onclick = () => triggerUpload(type);
+    document.getElementById('file-' + type).value = '';
+    // 专属活动图片删除日志
+    if (type === 'exclusive' && exclusiveImgName) {
+    exclusiveImgName = '';
+  }
+  }
+
+  // ===== 券包权益补充说明 =====
+  const savedCouponDesc = { owner: '', third: '' };
+
+  function saveCouponDesc() {
+    const newOwner = document.getElementById('coupon-desc-owner').value.trim();
+    const newThird = document.getElementById('coupon-desc-third').value.trim();
+
+    if (newOwner === savedCouponDesc.owner && newThird === savedCouponDesc.third) {
+      showToast('内容未变更');
+      return;
+    }
+    savedCouponDesc.owner = newOwner;
+    savedCouponDesc.third = newThird;
+    showToast('券包权益补充说明已保存 ✓');
+  }
+
+  // ===== Toast =====
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  // 初始化
+</script>
+</body>
+</html>
