@@ -437,8 +437,8 @@ function showToast(msg) {
 }
 
 // 初始化渲染
-buildTable('thead-trade',    'tbody-trade',    buildCols('对账月份'), tradeRows);
-buildTable('thead-platform', 'tbody-platform', buildCols('起止日期'), platformRows);
+buildTable('thead-trade',    'tbody-trade',    buildCols('对账月份', false), tradeRows);
+buildTable('thead-platform', 'tbody-platform', buildCols('起止日期', true),  platformRows);
 </script>
 </body>
 </html>
