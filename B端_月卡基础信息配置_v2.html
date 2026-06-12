@@ -1343,6 +1343,12 @@ savedKwh = newVal;
     setTimeout(() => el.classList.remove('show'), 2200);
   }
 
+  // ===== 字数计数器 =====
+  function updateCounter(el, counterId) {
+    const counter = document.getElementById(counterId);
+    if (counter) counter.textContent = el.value.length + ' / ' + el.maxLength + ' 字';
+  }
+
   // 初始化
 </script>
 </body>
