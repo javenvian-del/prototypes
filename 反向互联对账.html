@@ -309,7 +309,7 @@ function buildCols(dateLabel) {
   return [
     { key:'id',              label:'对账单号',       w:160, sticky:'left:40px', mono:true },
     { key:'platform',        label:'反向互联平台商',  w:190 },
-    { key:'date',            label:dateLabel,         w: dateLabel==='起止日期' ? 180 : 90 },
+    { key:'date',            label:dateLabel,         w: dateLabel==='起止日期' ? 180 : 90, highlight: dateLabel==='起止日期' },
     { key:'chargeOrders',    label:'充电服务单数',    w:100, right:true },
     { key:'parkOrders',      label:'占位服务单数',    w:100, right:true },
     { key:'kwh',             label:'总电量',          w:120, right:true },
