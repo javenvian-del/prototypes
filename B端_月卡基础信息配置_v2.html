@@ -1198,8 +1198,7 @@ savedKwh = newVal;
     if (newVal !== oldVal) {
 }
     cancelSkuEdit(key);
-    lockSkuView(key); // 首次保存后锁定，移除编辑按钮
-    showToast(skuLabels[key] + ' 已保存，不可再次修改 ✓');
+    showToast(skuLabels[key] + ' 已保存 ✓');
   }
 
   // 页面加载时，对已有值的字段直接锁定
