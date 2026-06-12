@@ -348,7 +348,8 @@ function buildTable(theadId, tbodyId, cols, rows) {
     cols.map(c => {
       const stickyStyle = c.sticky ? `position:sticky;${c.sticky};z-index:3;background:#fafafa;` : '';
       const opStyle = c.op ? `position:sticky;right:0;z-index:3;background:#fafafa;` : '';
-      return `<th style="min-width:${c.w}px;${stickyStyle}${opStyle}">${c.label}</th>`;
+      const hlStyle = c.highlight ? `background:#fff7e6;color:#d48806;font-weight:500;` : '';
+      return `<th style="min-width:${c.w}px;${stickyStyle}${opStyle}${hlStyle}">${c.label}</th>`;
     }).join('');
 
   // tbody
