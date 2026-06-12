@@ -1215,11 +1215,6 @@ savedKwh = newVal;
     document.getElementById(key + '-view').classList.remove('hidden');
   }
 
-  function lockWeaponView(key) {
-    const btn = document.querySelector('#' + key + '-view button');
-    if (btn) btn.remove();
-  }
-
   function saveEdit(key) {
     const input = document.getElementById(key + '-input');
     const newVal = input.value.trim();
