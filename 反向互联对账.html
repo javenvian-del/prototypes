@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>反向互联对账 — 充电网络管理系统</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Helvetica Neue",Arial,sans-serif;font-size:14px;color:#333;background:#F0F2F0;height:100vh;overflow:hidden}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:188px;min-width:188px;background:#1A3530;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+.sidebar::-webkit-scrollbar{width:0}
+.sidebar-logo{padding:14px 16px;display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600;color:#fff;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.logo-icon{width:28px;height:28px;background:#0B7B6B;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.menu-section{padding:6px 0}
+.menu-group-label{padding:10px 16px 4px;font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.5px;user-select:none}
+.menu-item{display:flex;align-items:center;padding:9px 16px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.65);gap:8px;user-select:none;transition:background .15s,color .15s}
+.menu-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.9)}
+.menu-item.active{background:#0B7B6B;color:#fff}
+.menu-item-text{flex:1}
+.sidebar-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:8px;margin-top:auto;flex-shrink:0}
+.avatar{width:28px;height:28px;border-radius:50%;background:#0B7B6B;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;flex-shrink:0}
+.avatar-name{font-size:13px;color:rgba(255,255,255,.65)}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:46px;background:#fff;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;padding:0 24px;font-size:14px;font-weight:500;color:#222;flex-shrink:0;gap:6px}
+.topbar-sep{color:#ddd;font-weight:400}
+.topbar-sub{color:#888;font-weight:400}
+.page-body{flex:1;overflow-y:auto;padding:16px 24px 40px}
+.page-body::-webkit-scrollbar{width:5px}
+.page-body::-webkit-scrollbar-thumb{background:#d9d9d9;border-radius:3px}
+
+/* MODE TABS */
+.mode-tabs{display:flex;margin-bottom:16px;border-bottom:2px solid #e8e8e8}
+.mode-tab{padding:10px 24px;font-size:14px;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s;user-select:none}
+.mode-tab:hover{color:#0B7B6B}
+.mode-tab.active{color:#0B7B6B;font-weight:600;border-bottom-color:#0B7B6B}
+
+/* FILTER */
+.filter-card{background:#fff;border-radius:4px;padding:16px 20px;margin-bottom:12px}
+.filter-row{display:flex;align-items:center;flex-wrap:wrap;gap:16px 20px}
+.filter-field{display:flex;align-items:center;gap:8px}
+.filter-label{font-size:13px;color:#555;white-space:nowrap}
+.filter-control{height:32px;border:1px solid #d9d9d9;border-radius:4px;padding:0 10px;font-size:13px;color:#333;outline:none;background:#fff;transition:border-color .15s;font-family:inherit}
+.filter-control:focus{border-color:#0B7B6B;box-shadow:0 0 0 2px rgba(11,123,107,.08)}
+select.filter-control{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:26px;cursor:pointer}
+.filter-control::placeholder{color:#bbb}
+.date-range{display:flex;align-items:center;gap:6px}
+.date-sep{font-size:13px;color:#aaa}
+.filter-actions{display:flex;gap:8px;margin-left:auto}
+
+/* BUTTONS */
+.btn{height:32px;padding:0 16px;border-radius:4px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;border:none;white-space:nowrap;font-family:inherit}
+.btn-primary{background:#0B7B6B;color:#fff;border:1px solid #0B7B6B}
+.btn-primary:hover{background:#096B5D}
+.btn-default{background:#fff;color:#555;border:1px solid #d9d9d9}
+.btn-default:hover{border-color:#0B7B6B;color:#0B7B6B}
+.btn-sm{height:28px;padding:0 12px;font-size:12px}
+
+/* TABLE CARD */
+.table-card{background:#fff;border-radius:4px;overflow:hidden}
+.table-toolbar{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f0f0}
+.toolbar-link{font-size:13px;color:#0B7B6B;cursor:pointer;display:flex;align-items:center;gap:4px}
+.toolbar-link:hover{text-decoration:underline}
+.table-wrap{overflow-x:auto}
+.table-wrap::-webkit-scrollbar{height:5px}
+.table-wrap::-webkit-scrollbar-thumb{background:#d9d9d9;border-radius:3px}
+
+.data-table{width:100%;border-collapse:collapse;font-size:13px;min-width:2400px}
+.data-table thead tr{border-bottom:1px solid #f0f0f0;background:#fafafa}
+.data-table thead th{padding:10px 10px;text-align:left;font-weight:500;color:#666;white-space:nowrap;border-right:1px solid #f5f5f5}
+.data-table thead th:last-child{border-right:none;position:sticky;right:0;background:#fafafa;z-index:3}
+.data-table tbody tr{border-bottom:1px solid #f5f5f5;transition:background .12s}
+.data-table tbody tr:hover{background:#f7fffd}
+.data-table tbody td{padding:10px 10px;color:#333;vertical-align:middle;white-space:nowrap;border-right:1px solid #f5f5f5}
+.data-table tbody td:last-child{border-right:none;position:sticky;right:0;background:#fff;z-index:1}
+.data-table tbody tr:hover td:last-child{background:#f7fffd}
+
+.col-check{position:sticky;left:0;z-index:2;background:inherit;width:40px;min-width:40px}
+.col-id{position:sticky;left:40px;z-index:2;background:inherit;min-width:160px}
+.data-table thead th.col-check,
+.data-table thead th.col-id{background:#fafafa;z-index:4}
+
+.row-check{width:16px;height:16px;border:1.5px solid #d9d9d9;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s}
+.row-check.checked{background:#0B7B6B;border-color:#0B7B6B}
+.row-check.checked::after{content:'';width:9px;height:5px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:12px;white-space:nowrap}
+.badge-blue{background:#e6f7ff;color:#1890ff;border:1px solid #91d5ff}
+.badge-green{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f}
+.badge-orange{background:#fff7e6;color:#d48806;border:1px solid #ffd591}
+.badge-gray{background:#f5f5f5;color:#aaa;border:1px solid #e8e8e8}
+
+.ops{display:flex;gap:6px;align-items:center}
+.op-link{font-size:12px;color:#0B7B6B;cursor:pointer}
+.op-link:hover{text-decoration:underline}
+.op-sep{color:#e8e8e8}
+
+/* PAGINATION */
+.pagination-bar{padding:14px 16px;border-top:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+.page-info{font-size:13px;color:#888}
+.page-info span{color:#333;font-weight:500}
+.page-controls{display:flex;align-items:center;gap:6px}
+.page-btn{height:28px;min-width:28px;padding:0 8px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;font-size:13px;color:#555;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .12s;font-family:inherit}
+.page-btn:hover:not(:disabled){border-color:#0B7B6B;color:#0B7B6B}
+.page-btn.active{background:#0B7B6B;border-color:#0B7B6B;color:#fff;cursor:default}
+.page-btn:disabled{color:#ccc;cursor:not-allowed}
+.page-size-select{height:28px;border:1px solid #d9d9d9;border-radius:4px;padding:0 22px 0 8px;font-size:13px;color:#555;outline:none;cursor:pointer;font-family:inherit;appearance:none;-webkit-appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%23bbb'/%3E%3C/svg%3E") no-repeat right 7px center}
+.page-jump{display:flex;align-items:center;gap:6px;font-size:13px;color:#888}
+.page-jump input{width:48px;height:28px;border:1px solid #d9d9d9;border-radius:4px;padding:0 8px;font-size:13px;text-align:center;outline:none;font-family:inherit}
+
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;padding:8px 20px;border-radius:4px;font-size:13px;z-index:999;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L13 5V11L8 14L3 11V5L8 2Z" stroke="white" stroke-width="1.5" fill="none"/><path d="M8 5V11M5.5 6.5L8 5L10.5 6.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+    </div>
+    充电网络管理系统
+  </div>
+  <div class="menu-section">
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg><span class="menu-item-text">场站管理</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 12c0-2.8 2.2-4 5-4s5 1.2 5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">客服工具</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L8.8 5.2L13 5.8L10 8.7L10.7 13L7 11L3.3 13L4 8.7L1 5.8L5.2 5.2L7 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span class="menu-item-text">增长工具</span></div>
+    <div class="menu-group-label">账务管理</div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M1 6h12" stroke="currentColor" stroke-width="1.3"/></svg><span class="menu-item-text">加盟商分账管理</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h7M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">加盟站对账</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h7M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">自建站对账</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h7M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">试点站对账</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h7M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">互联互通对账</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h4M7 5v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">互联互通余额管理</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 4v3.5l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">退款进度查询</span></div>
+    <div class="menu-item active"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10.5L6 4.5L9 7.5L11.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="menu-item-text">反向互联对账</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg><span class="menu-item-text">BD数据看板</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10.5L6 4.5L9 7.5L11.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="menu-item-text">运营数据看板</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/></svg><span class="menu-item-text">基础资料</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M4 7h6M4 4.5h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span class="menu-item-text">系统监控</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M4 2v10M7 5v7M10 3v9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">下载管理</span></div>
+    <div class="menu-item"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 4v3l2 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span class="menu-item-text">聚合通知</span></div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="avatar">范</div>
+    <span class="avatar-name">范文杰</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    账务管理 <span class="topbar-sep">/</span> <span class="topbar-sub">反向互联对账</span>
+  </div>
+  <div class="page-body">
+
+    <!-- TABS -->
+    <div class="mode-tabs">
+      <div class="mode-tab active" id="tab-trade" onclick="switchMode('trade')">贸易模式</div>
+      <div class="mode-tab" id="tab-platform" onclick="switchMode('platform')">平台模式</div>
+    </div>
+
+    <!-- 贸易模式筛选 -->
+    <div class="filter-card" id="filter-trade">
+      <div class="filter-row">
+        <div class="filter-field">
+          <span class="filter-label">反向互联平台商：</span>
+          <select class="filter-control" style="width:200px">
+            <option value="">全部</option>
+            <option>【反向互联渠道平台】-极氪</option>
+            <option>招商局大厦</option>
+            <option>【反向互联渠道平台】-小米</option>
+            <option>重庆数字交通产业集团</option>
+            <option>【反向互联渠道平台】-小桔</option>
+            <option>无锡市政公用新能源科技</option>
+            <option>【反向互联渠道平台】-星星</option>
+            <option>吉林省平台</option>
+            <option>上海</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <span class="filter-label">月份：</span>
+          <input type="month" class="filter-control" value="2026-05" style="width:150px">
+        </div>
+        <div class="filter-field">
+          <span class="filter-label">结算状态：</span>
+          <select class="filter-control" style="width:130px">
+            <option value="">全部</option>
+            <option>未结算</option>
+            <option>结算中</option>
+            <option>已结算</option>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button class="btn btn-primary">搜索</button>
+          <button class="btn btn-default">重置</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 平台模式筛选 -->
+    <div class="filter-card" id="filter-platform" style="display:none">
+      <div class="filter-row">
+        <div class="filter-field">
+          <span class="filter-label">反向互联平台商：</span>
+          <select class="filter-control" style="width:160px">
+            <option value="">全部</option>
+            <option selected>高德地图</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <span class="filter-label">起止日期：</span>
+          <div class="date-range">
+            <input type="date" class="filter-control" value="2026-06-01" style="width:140px">
+            <span class="date-sep">~</span>
+            <input type="date" class="filter-control" value="2026-06-30" style="width:140px">
+          </div>
+        </div>
+        <div class="filter-field">
+          <span class="filter-label">结算状态：</span>
+          <select class="filter-control" style="width:130px">
+            <option value="">全部</option>
+            <option>未结算</option>
+            <option>结算中</option>
+            <option>已结算</option>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button class="btn btn-primary">搜索</button>
+          <button class="btn btn-default">重置</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 贸易模式表格 -->
+    <div class="table-card" id="table-trade">
+      <div class="table-toolbar">
+        <button class="btn btn-default btn-sm" onclick="showToast('发起结算')">结算</button>
+        <span class="toolbar-link" onclick="showToast('打开下载任务')">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 6l3.5 3.5L10 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 11h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          我的下载任务
+        </span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr id="thead-trade"></tr></thead>
+          <tbody id="tbody-trade"></tbody>
+        </table>
+      </div>
+      <div class="pagination-bar">
+        <div class="page-info">共 <span>341</span> 条</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <select class="page-size-select"><option>10条/页</option><option>20条/页</option><option>50条/页</option></select>
+          <div class="page-controls">
+            <button class="page-btn" disabled>‹</button>
+            <button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">3</button><button class="page-btn">4</button><button class="page-btn">5</button><button class="page-btn">6</button>
+            <span style="font-size:13px;color:#aaa">…</span>
+            <button class="page-btn">35</button>
+            <button class="page-btn">›</button>
+          </div>
+          <div class="page-jump">前往 <input type="number" min="1" value="1"> 页</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 平台模式表格 -->
+    <div class="table-card" id="table-platform" style="display:none">
+      <div class="table-toolbar">
+        <button class="btn btn-default btn-sm" onclick="showToast('发起结算')">结算</button>
+        <span class="toolbar-link" onclick="showToast('打开下载任务')">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 6l3.5 3.5L10 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 11h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          我的下载任务
+        </span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr id="thead-platform"></tr></thead>
+          <tbody id="tbody-platform"></tbody>
+        </table>
+      </div>
+      <div class="pagination-bar">
+        <div class="page-info">共 <span>28</span> 条</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <select class="page-size-select"><option>10条/页</option><option>20条/页</option><option>50条/页</option></select>
+          <div class="page-controls">
+            <button class="page-btn" disabled>‹</button>
+            <button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">3</button>
+            <button class="page-btn">›</button>
+          </div>
+          <div class="page-jump">前往 <input type="number" min="1" value="1"> 页</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// 公共列定义（对账时间列根据模式传入）
+function buildCols(dateLabel) {
+  return [
+    { key:'id',              label:'对账单号',       w:160, sticky:'left:40px', mono:true },
+    { key:'platform',        label:'反向互联平台商',  w:190 },
+    { key:'date',            label:dateLabel,         w: dateLabel==='起止日期' ? 180 : 90 },
+    { key:'chargeOrders',    label:'充电服务单数',    w:100, right:true },
+    { key:'parkOrders',      label:'占位服务单数',    w:100, right:true },
+    { key:'kwh',             label:'总电量',          w:120, right:true },
+    { key:'total',           label:'总费用',          w:110, right:true },
+    { key:'elec',            label:'电费',            w:110, right:true },
+    { key:'svc',             label:'服务费',          w:110, right:true },
+    { key:'park',            label:'占位费',          w:100, right:true },
+    { key:'adjElec',         label:'调整后电费',      w:110, right:true },
+    { key:'adjSvc',          label:'调整后服务费',    w:115, right:true },
+    { key:'adjPark',         label:'调整后占位费',    w:115, right:true },
+    { key:'receivable',      label:'应收总金额',      w:110, right:true, green:true },
+    { key:'adjReason',       label:'调整原因',        w:120 },
+    { key:'status',          label:'状态',            w:80,  badge:'status' },
+    { key:'payStatus',       label:'支付状态',        w:90,  badge:'pay' },
+    { key:'payTime',         label:'认款完成时间',    w:150, muted:true },
+    { key:'invoiceStatus',   label:'开票状态',        w:80,  badge:'invoice' },
+    { key:'invoiceApplicant',label:'开票申请人',      w:90 },
+    { key:'invoiceApplyTime',label:'开票申请时间',    w:150, muted:true },
+    { key:'invoiceTime',     label:'开票完成时间',    w:150, muted:true },
+    { key:'settleApplicant', label:'结算申请人',      w:90 },
+    { key:'settleApplyTime', label:'结算申请时间',    w:150, muted:true },
+    { key:'ops',             label:'操作',            w:130, op:true },
+  ];
+}
+
+function payBadge(s)     { const m={已支付:'badge-green',未支付:'badge-gray',部分支付:'badge-orange'}; return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`; }
+function invoiceBadge(s) { const m={已开票:'badge-green',开票中:'badge-blue',未开票:'badge-gray'};    return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`; }
+function statusBadge(s)  { return `<span class="badge badge-blue">${s}</span>`; }
+function renderOps(ops)  { return '<div class="ops">'+ops.map((o,i)=>`<span class="op-link" onclick="showToast('${o}')">${o}</span>${i<ops.length-1?'<span class="op-sep">|</span>':''}`).join('')+'</div>'; }
+
+function buildTable(theadId, tbodyId, cols, rows) {
+  // thead
+  const tr = document.getElementById(theadId);
+  tr.innerHTML =
+    `<th class="col-check" style="position:sticky;left:0;z-index:4;background:#fafafa"><div class="row-check" onclick="toggleAll(this,'${tbodyId}')"></div></th>` +
+    cols.map(c => {
+      const stickyStyle = c.sticky ? `position:sticky;${c.sticky};z-index:3;background:#fafafa;` : '';
+      const opStyle = c.op ? `position:sticky;right:0;z-index:3;background:#fafafa;` : '';
+      return `<th style="min-width:${c.w}px;${stickyStyle}${opStyle}">${c.label}</th>`;
+    }).join('');
+
+  // tbody
+  const tbody = document.getElementById(tbodyId);
+  tbody.innerHTML = rows.map(r => {
+    const cells = cols.map(c => {
+      let val = r[c.key];
+      let style = '';
+      if (c.right)  style += 'text-align:right;';
+      if (c.green)  style += 'color:#0B7B6B;font-weight:500;';
+      if (c.muted)  style += 'color:#999;font-size:12px;';
+      if (c.mono)   style += 'font-family:monospace;font-size:12px;';
+      if (c.sticky) style += `position:sticky;${c.sticky};z-index:1;background:inherit;`;
+      if (c.op)     style += 'position:sticky;right:0;z-index:1;background:inherit;';
+      let cell = val;
+      if (c.badge === 'pay')     cell = payBadge(val);
+      if (c.badge === 'invoice') cell = invoiceBadge(val);
+      if (c.badge === 'status')  cell = statusBadge(val);
+      if (c.op)                  cell = renderOps(val);
+      if (c.right && !c.badge && !c.op) cell = Number(val) ? Number(val).toLocaleString() : val;
+      return `<td style="${style}">${cell}</td>`;
+    }).join('');
+    return `<tr><td class="col-check" style="position:sticky;left:0;z-index:1;background:inherit"><div class="row-check" onclick="this.classList.toggle('checked')"></div></td>${cells}</tr>`;
+  }).join('');
+}
+
+function toggleAll(el, tbodyId) {
+  el.classList.toggle('checked');
+  const on = el.classList.contains('checked');
+  document.querySelectorAll(`#${tbodyId} .row-check`).forEach(b => on ? b.classList.add('checked') : b.classList.remove('checked'));
+}
+
+// ===== 贸易模式数据 =====
+const tradeRows = [
+  { id:'10065420167192766', platform:'【反向互联渠道平台】-极氪',  date:'202605', chargeOrders:13784, parkOrders:30, kwh:'602981.97', total:'704410.78', elec:'348214.91', svc:'355315.87', park:'880.00', adjElec:'348214.91', adjSvc:'355315.87', adjPark:'880.00', receivable:'704410.78', adjReason:'—', status:'已生成', payStatus:'已支付', payTime:'2026-06-10 09:12', invoiceStatus:'已开票', invoiceApplicant:'张三', invoiceApplyTime:'2026-06-10 10:00', invoiceTime:'2026-06-11 15:22', settleApplicant:'李四', settleApplyTime:'2026-06-12 09:00', ops:['导出','查看发票','更多'] },
+  { id:'10065420167192762', platform:'招商局大厦',                  date:'202605', chargeOrders:136,   parkOrders:0,  kwh:'3402.13',   total:'996.92',   elec:'996.92',   svc:'0.00',     park:'0.00',   adjElec:'996.92',   adjSvc:'0.00',     adjPark:'0.00',   receivable:'996.92',   adjReason:'—', status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10065420167192745', platform:'【反向互联渠道平台】-小米',  date:'202605', chargeOrders:7343,  parkOrders:12, kwh:'373226.69', total:'381825.89', elec:'195456.97', svc:'185692.92', park:'676.00', adjElec:'195456.97', adjSvc:'185692.92', adjPark:'676.00', receivable:'381825.89', adjReason:'—', status:'已生成', payStatus:'已支付', payTime:'2026-06-09 14:30', invoiceStatus:'已开票', invoiceApplicant:'王五', invoiceApplyTime:'2026-06-09 16:00', invoiceTime:'2026-06-10 11:00', settleApplicant:'赵六', settleApplyTime:'2026-06-11 10:00', ops:['导出','查看发票','更多'] },
+  { id:'10058390782563593', platform:'重庆数字交通产业集团…',      date:'202605', chargeOrders:95740, parkOrders:0,  kwh:'2092160.75',total:'1667456.07',elec:'0.00',     svc:'1667456.07',park:'0.00',  adjElec:'0.00',     adjSvc:'1667456.07',adjPark:'0.00',  receivable:'1667456.07',adjReason:'—', status:'已生成', payStatus:'部分支付', payTime:'2026-06-08 11:20', invoiceStatus:'开票中', invoiceApplicant:'孙七', invoiceApplyTime:'2026-06-08 12:00', invoiceTime:'—', settleApplicant:'周八', settleApplyTime:'2026-06-10 09:00', ops:['开票','导出','更多'] },
+  { id:'10058390782563592', platform:'【反向互联渠道平台】-小桔', date:'202605', chargeOrders:42082, parkOrders:0,  kwh:'1107402.46',total:'786301.18', elec:'479496.36', svc:'306804.82', park:'0.00',   adjElec:'479496.36', adjSvc:'306804.82', adjPark:'0.00',  receivable:'786301.18', adjReason:'—', status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10058390782563591', platform:'无锡市政公用新能源科…',      date:'202605', chargeOrders:43,    parkOrders:0,  kwh:'925.47',    total:'67.83',    elec:'0.00',     svc:'67.83',     park:'0.00',   adjElec:'0.00',     adjSvc:'67.83',     adjPark:'0.00',   receivable:'67.83',    adjReason:'—', status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10058390782563589', platform:'【反向互联渠道平台】-新…',  date:'202605', chargeOrders:28608, parkOrders:133,kwh:'797259.39', total:'602665.42', elec:'357411.34', svc:'239258.08', park:'588.00', adjElec:'357411.34', adjSvc:'239258.08', adjPark:'588.00', receivable:'602657.42', adjReason:'—', status:'已生成', payStatus:'已支付', payTime:'2026-06-07 16:40', invoiceStatus:'已开票', invoiceApplicant:'吴九', invoiceApplyTime:'2026-06-07 17:00', invoiceTime:'2026-06-09 09:30', settleApplicant:'郑十', settleApplyTime:'2026-06-10 08:00', ops:['导出','查看发票','更多'] },
+  { id:'10058390782563587', platform:'【反向互联渠道平台】-星星', date:'202605', chargeOrders:577,   parkOrders:4,  kwh:'15507.95',  total:'11990.21', elec:'7125.48',  svc:'4726.73',   park:'138.00', adjElec:'7125.48',  adjSvc:'4726.73',  adjPark:'138.00', receivable:'11990.21', adjReason:'—', status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10058390782563576', platform:'吉林省平台',                  date:'202605', chargeOrders:1213,  parkOrders:0,  kwh:'25771.75',  total:'39289.23', elec:'18728.47', svc:'20560.76',  park:'0.00',   adjElec:'18728.47', adjSvc:'20560.76', adjPark:'0.00',  receivable:'39289.23', adjReason:'—', status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'10058390782563567', platform:'上海',                        date:'202605', chargeOrders:172,   parkOrders:2,  kwh:'3304.65',   total:'3550.10',  elec:'1805.77',  svc:'1642.33',   park:'102.00', adjElec:'1805.77',  adjSvc:'1642.33',  adjPark:'102.00', receivable:'3550.10',  adjReason:'—', status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+];
+
+// ===== 平台模式数据（高德地图，按天出账）=====
+const platformRows = [
+  { id:'GD20260601001', platform:'高德地图', date:'2026-06-01 ~ 2026-06-01', chargeOrders:1823, parkOrders:5,  kwh:'48234.56',  total:'89231.44', elec:'52341.22', svc:'36480.22', park:'410.00', adjElec:'52341.22', adjSvc:'36480.22', adjPark:'410.00', receivable:'89231.44', adjReason:'—', status:'已生成', payStatus:'已支付', payTime:'2026-06-03 10:00', invoiceStatus:'已开票', invoiceApplicant:'张三', invoiceApplyTime:'2026-06-03 11:00', invoiceTime:'2026-06-04 14:00', settleApplicant:'李四', settleApplyTime:'2026-06-05 09:00', ops:['导出','查看发票','更多'] },
+  { id:'GD20260602001', platform:'高德地图', date:'2026-06-02 ~ 2026-06-02', chargeOrders:1756, parkOrders:3,  kwh:'46812.33',  total:'86544.18', elec:'50832.10', svc:'35412.08', park:'300.00', adjElec:'50832.10', adjSvc:'35412.08', adjPark:'300.00', receivable:'86544.18', adjReason:'—', status:'已生成', payStatus:'已支付', payTime:'2026-06-04 10:00', invoiceStatus:'开票中', invoiceApplicant:'王五', invoiceApplyTime:'2026-06-04 11:00', invoiceTime:'—', settleApplicant:'赵六', settleApplyTime:'2026-06-06 09:00', ops:['导出','更多'] },
+  { id:'GD20260603001', platform:'高德地图', date:'2026-06-03 ~ 2026-06-03', chargeOrders:1902, parkOrders:8,  kwh:'50123.78',  total:'92316.55', elec:'54210.30', svc:'37286.25', park:'820.00', adjElec:'54210.30', adjSvc:'37286.25', adjPark:'820.00', receivable:'92316.55', adjReason:'—', status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'GD20260604001', platform:'高德地图', date:'2026-06-04 ~ 2026-06-04', chargeOrders:2104, parkOrders:12, kwh:'55436.20',  total:'101832.76',elec:'59823.44', svc:'41388.32', park:'621.00', adjElec:'59823.44', adjSvc:'41388.32', adjPark:'621.00', receivable:'101832.76',adjReason:'—', status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'GD20260605001', platform:'高德地图', date:'2026-06-05 ~ 2026-06-05', chargeOrders:1644, parkOrders:2,  kwh:'43298.11',  total:'80112.39', elec:'47234.15', svc:'32678.24', park:'200.00', adjElec:'47234.15', adjSvc:'32678.24', adjPark:'200.00', receivable:'80112.39', adjReason:'—', status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'GD20260606001', platform:'高德地图', date:'2026-06-06 ~ 2026-06-06', chargeOrders:1789, parkOrders:6,  kwh:'47102.44',  total:'87231.60', elec:'51345.30', svc:'35266.30', park:'620.00', adjElec:'51345.30', adjSvc:'35266.30', adjPark:'620.00', receivable:'87231.60', adjReason:'金额差异调整', status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'GD20260607001', platform:'高德地图', date:'2026-06-07 ~ 2026-06-07', chargeOrders:1923, parkOrders:4,  kwh:'50889.66',  total:'93445.22', elec:'55012.18', svc:'37913.04', park:'520.00', adjElec:'55012.18', adjSvc:'37913.04', adjPark:'520.00', receivable:'93445.22', adjReason:'—', status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+  { id:'GD20260608001', platform:'高德地图', date:'2026-06-08 ~ 2026-06-08', chargeOrders:2011, parkOrders:7,  kwh:'53124.89',  total:'98210.44', elec:'57834.20', svc:'39756.24', park:'620.00', adjElec:'57834.20', adjSvc:'39756.24', adjPark:'620.00', receivable:'98210.44', adjReason:'—', status:'已生成', payStatus:'未支付', payTime:'—', invoiceStatus:'未开票', invoiceApplicant:'—', invoiceApplyTime:'—', invoiceTime:'—', settleApplicant:'—', settleApplyTime:'—', ops:['上传','导出'] },
+];
+
+function switchMode(mode) {
+  ['trade','platform'].forEach(m => {
+    document.getElementById('tab-'+m).classList.toggle('active', m===mode);
+    document.getElementById('filter-'+m).style.display = m===mode ? '' : 'none';
+    document.getElementById('table-'+m).style.display  = m===mode ? '' : 'none';
+  });
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// 初始化渲染
+buildTable('thead-trade',    'tbody-trade',    buildCols('对账月份'), tradeRows);
+buildTable('thead-platform', 'tbody-platform', buildCols('起止日期'), platformRows);
+</script>
+</body>
+</html>
