@@ -823,8 +823,10 @@
           </div>
           <div class="form-content">
             <textarea class="form-control" id="guide-copy" placeholder="请输入引导文案内容"
+              maxlength="15"
+              oninput="updateCounter(this,'guide-copy-counter')"
               style="height:80px;width:480px;max-width:100%;resize:vertical;padding:8px 10px;line-height:1.6"></textarea>
-            <div class="form-hint">文案将展示在启动页，引导用户开通月卡</div>
+            <div class="form-hint">文案将展示在启动页，引导用户开通月卡。<span id="guide-copy-counter" style="color:#bbb;float:right">0 / 15 字</span></div>
           </div>
         </div>
         <div class="form-row">
