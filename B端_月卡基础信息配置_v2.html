@@ -1244,9 +1244,6 @@ savedKwh = newVal;
     showToast(fieldLabels[key] + ' 已保存 ✓');
   }
 
-  // 页面加载时，对已有值的武器 ID 直接锁定
-  Object.keys(weaponIds).forEach(key => { if (weaponIds[key]) lockWeaponView(key); });
-
 
   // ===== 图片上传规格 =====
   const uploadSpecs = {
