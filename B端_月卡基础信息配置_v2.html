@@ -1259,6 +1259,13 @@ savedKwh = newVal;
   Object.keys(weaponIds).forEach(key => { if (weaponIds[key]) lockWeaponView(key); });
 
 
+  // ===== 图片上传规格 =====
+  const uploadSpecs = {
+    owner:     { w: 390, h: 292, hint: 'JPG / PNG，建议 390×292px，等比例上传即可' },
+    third:     { w: 358, h: 198, hint: 'JPG / PNG，建议 358×198px，等比例上传即可' },
+    exclusive: { w: 358, h: 102, hint: 'JPG / PNG，建议 358×102px，等比例上传即可' }
+  };
+
   // ===== 图片上传 =====
   function triggerUpload(type) {
     document.getElementById('file-' + type).click();
@@ -1268,9 +1275,11 @@ savedKwh = newVal;
     const file = e.target.files[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
+    const spec = uploadSpecs[type];
     const box = document.getElementById('upload-' + type);
+    const aspectStyle = spec ? `aspect-ratio:${spec.w}/${spec.h};height:auto;` : 'height:120px;';
     box.innerHTML = `
-      <div class="upload-preview" style="width:100%;height:120px">
+      <div class="upload-preview" style="width:100%;${aspectStyle}">
         <img class="preview-img" src="${url}">
         <div class="preview-actions">
           <span class="preview-action" onclick="event.stopPropagation();triggerUpload('${type}')">重新上传</span>
@@ -1281,14 +1290,17 @@ savedKwh = newVal;
     box.style.border = 'none';
     box.style.padding = '0';
     box.onclick = null;
-    // 专属活动图片上传日志
     if (type === 'exclusive') {
     exclusiveImgName = file.name;
   }
   }
 
   function clearUpload(type) {
+    const spec = uploadSpecs[type];
     const box = document.getElementById('upload-' + type);
+    const hintText = spec ? spec.hint : '支持 JPG / PNG';
+    const aspectStyle = spec ? `aspect-ratio:${spec.w}/${spec.h};height:auto;min-height:60px;` : 'height:120px;';
+    const maxWidth = type === 'exclusive' ? 'max-width:360px;' : '';
     box.innerHTML = `
       <div class="upload-icon">
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
@@ -1297,13 +1309,11 @@ savedKwh = newVal;
         </svg>
       </div>
       <div class="upload-text">点击上传</div>
-      <div class="upload-sub">支持 JPG / PNG，建议 750×300px</div>
+      <div class="upload-sub">${hintText}</div>
     `;
-    box.style.border = '1.5px dashed #d9d9d9';
-    box.style.padding = '';
+    box.setAttribute('style', `${maxWidth}${aspectStyle}border:1.5px dashed #d9d9d9;`);
     box.onclick = () => triggerUpload(type);
     document.getElementById('file-' + type).value = '';
-    // 专属活动图片删除日志
     if (type === 'exclusive' && exclusiveImgName) {
     exclusiveImgName = '';
   }
