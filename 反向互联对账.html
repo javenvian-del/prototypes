@@ -304,9 +304,9 @@ select.filter-control{appearance:none;-webkit-appearance:none;background-image:u
 <div class="toast" id="toast"></div>
 
 <script>
-// 公共列定义（对账时间列根据模式传入）
-function buildCols(dateLabel) {
-  return [
+// 公共列定义（对账时间列根据模式传入，extCols=true 时含新增三列）
+function buildCols(dateLabel, extCols) {
+  const base = [
     { key:'id',              label:'对账单号',       w:160, sticky:'left:40px', mono:true },
     { key:'platform',        label:'反向互联平台商',  w:190 },
     { key:'date',            label:dateLabel,         w: dateLabel==='起止日期' ? 180 : 90, highlight: dateLabel==='起止日期' },
@@ -317,12 +317,20 @@ function buildCols(dateLabel) {
     { key:'elec',            label:'电费',            w:110, right:true },
     { key:'svc',             label:'服务费',          w:110, right:true },
     { key:'park',            label:'占位费',          w:100, right:true },
-    { key:'fee',             label:'手续费',          w:100, right:true, highlight:true },
+  ];
+  if (extCols) base.push(
+    { key:'fee',             label:'手续费',          w:100, right:true, highlight:true }
+  );
+  base.push(
     { key:'adjElec',         label:'调整后电费',      w:110, right:true },
     { key:'adjSvc',          label:'调整后服务费',    w:115, right:true },
     { key:'adjPark',         label:'调整后占位费',    w:115, right:true },
+  );
+  if (extCols) base.push(
     { key:'adjFee',          label:'调整后手续费',    w:115, right:true, highlight:true },
     { key:'adjSubsidy',      label:'调整后补贴金额',  w:120, right:true, highlight:true },
+  );
+  base.push(
     { key:'receivable',      label:'应收总金额',      w:110, right:true, green:true },
     { key:'adjReason',       label:'调整原因',        w:120 },
     { key:'status',          label:'状态',            w:80,  badge:'status' },
@@ -335,7 +343,8 @@ function buildCols(dateLabel) {
     { key:'settleApplicant', label:'结算申请人',      w:90 },
     { key:'settleApplyTime', label:'结算申请时间',    w:150, muted:true },
     { key:'ops',             label:'操作',            w:130, op:true },
-  ];
+  );
+  return base;
 }
 
 function payBadge(s)     { const m={已支付:'badge-green',未支付:'badge-gray',部分支付:'badge-orange'}; return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`; }
