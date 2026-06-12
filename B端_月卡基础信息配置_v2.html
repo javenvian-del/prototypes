@@ -1054,9 +1054,11 @@
             <span class="hint">三方用户可见，选填</span>
           </div>
           <div class="form-content">
-            <textarea class="form-control" id="coupon-desc-third" placeholder="请输入补充说明文案，不填则不展示"
+            <textarea class="form-control" id="coupon-desc-third" placeholder="请输入补充说明文案，最多 50 字，不填则不展示"
+              maxlength="50"
+              oninput="updateCounter(this,'coupon-third-counter')"
               style="height:80px;width:480px;max-width:100%;resize:vertical;padding:8px 10px;line-height:1.6"></textarea>
-            <div class="form-hint">用于在月卡券包权益模块下方展示补充说明，帮助非车主了解权益使用规则或限制</div>
+            <div class="form-hint">用于在月卡券包权益模块下方展示补充说明，帮助非车主了解权益使用规则或限制。<span id="coupon-third-counter" style="color:#bbb;float:right">0 / 50 字</span></div>
           </div>
         </div>
 
