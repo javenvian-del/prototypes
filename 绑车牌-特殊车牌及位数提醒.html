@@ -281,11 +281,28 @@ body {
   font-size: 14px; font-weight: 600; color: #374151; cursor: pointer;
 }
 .prov-item.active { background: #E8F6F1; color: #059669; }
-.prov-item.special-item { background: #FFF7ED; color: #D97706; }
-.special-grid {
-  display: grid; grid-template-columns: repeat(5, 1fr);
-  gap: 7px; padding: 4px 14px 20px;
+.prov-item.other-item {
+  background: #F3F4F6; color: #6B7280;
+  border: 1.5px dashed #D1D5DB;
+  font-size: 13px;
 }
+/* 自由输入前缀 */
+.prefix-free-wrap {
+  display: flex; align-items: center; gap: 3px;
+  min-width: 66px; flex-shrink: 0;
+  padding: 6px 10px;
+  border-bottom: 2px solid #3B82F6;
+}
+.prefix-free-text {
+  font-size: 17px; font-weight: 700; color: #1A1A1A;
+  letter-spacing: 1px;
+}
+.prefix-cursor {
+  width: 1.5px; height: 18px; background: #3B82F6;
+  border-radius: 1px;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
 /* ═══ SPEC TABLE ═══ */
 .spec-section {
