@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>绑定车牌优惠券需求范围说明</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 0;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            background: white;
+            border-radius: 0 0 8px 8px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1890ff;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background: #1890ff;
+            margin-right: 12px;
+            border-radius: 2px;
+        }
+
+        .section-content {
+            background: #fafafa;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .section-content ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .section-content li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .success-box {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .success-box .title {
+            color: #52c41a;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .success-box .title::before {
+            content: '✓';
+            display: inline-flex;
+            width: 20px;
+            height: 20px;
+            background: #52c41a;
+            color: white;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .success-box p {
+            color: #52c41a;
+            margin: 0;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .table th {
+            background: #fafafa;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #e8e8e8;
+        }
+
+        .table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .highlight {
+            background: #fffbe6;
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid #ffe58f;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 12px;
+            }
+
+            .header, .content {
+                padding: 24px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>绑定车牌优惠券需求范围说明</h1>
+            <div class="subtitle">ICP Pro 月卡产品 - 绑定车牌享特惠</div>
+        </div>
+
+        <div class="content">
+            <!-- 背景 -->
+            <div class="section">
+                <div class="section-title">1. 需求背景</div>
+                <div class="section-content">
+                    <p>为了提升 LCP 超充月卡的.Binding 转化率，面向已绑定车牌用户推出专属优惠绑定活动。</p>
+                </div>
+            </div>
+
+            <!-- 需求范围 -->
+            <div class="section">
+                <div class="section-title">2. 需求范围说明</div>
+                <div class="section-content">
+                    <p class="highlight">仅适用于 ICP Pro 月卡绑定流程，重点优化车牌绑定环节的用户体验和转化率。</p>
+
+                    <ul>
+                        <li><strong>功能定位：</strong>绑定车牌时的优惠券选择模块</li>
+                        <li><strong>适用页面：</strong>绑定车牌页面（/bind-license-plate-special.html）</li>
+                        <li><strong>核心流程：</strong>用户选择优惠券 → 绑定车牌 → 支付订阅</li>
+                        <li><strong>目标转化率提升：</strong>10% 以上</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 不在此范围的内容 -->
+            <div class="section">
+                <div class="section-title">3. 不在此范围的内容（Out of Scope）</div>
+                <div class="section-content">
+                    <p>以下功能和需求不在本次迭代范围内：</p>
+                    <div class="table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>项目</th>
+                                    <th>状态</th>
+                                    <th>说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>月卡订阅功能本身</td>
+                                    <td>已有</td>
+                                    <td>月卡产品功能已完成，本次仅优化绑定流程</td>
+                                </tr>
+                                <tr>
+                                    <td>PC 端适配</td>
+                                    <td>Not in scope</td>
+                                    <td>本次仅优化移动端 H5 页面</td>
+                                </tr>
+                                <tr>
+                                    <td>积分兑换优惠券</td>
+                                    <td>Not in scope</td>
+                                    <td>仅支持传入的优惠券列表，暂不支持积分兑换</td>
+                                </tr>
+                                <tr>
+                                    <td>后台配置界面</td>
+                                    <td>Not in scope</td>
+                                    <td>优惠券配置由后台管理，前端仅需展示</td>
+                                </tr>
+                                <tr>
+                                    <td>用户重试绑定功能</td>
+                                    <td>Not in scope</td>
+                                    <td>车牌绑定完成后，不支持用户重新绑定</td>
+                                </tr>
+                                <tr>
+                                    <td>优惠券领取逻辑</td>
+                                    <td>Not in scope</td>
+                                    <td>优惠券由后台推送，前端仅展示已选中的优惠券</td>
+                                </tr>
+                                <tr>
+                                    <td>历史绑定记录查询</td>
+                                    <td>Not in scope</td>
+                                    <td>不涉及查询用户历史绑定记录</td>
+                                </tr>
+                                <tr>
+                                    <td>车牌解绑功能</td>
+                                    <td>Not in scope</td>
+                                    <td>用户需求范围内不包含解绑功能</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 验收标准 -->
+            <div class="section">
+                <div class="section-title">4. 验收标准</div>
+                <div class="section-content">
+                    <div class="success-box">
+                        <p>• 绑定车牌页面正确展示选中的传入优惠券信息（包括券名、立减金额、使用规则）</p>
+                        <p>• 用户点击"前往绑定"按钮后，能正确进入车牌绑定流程</p>
+                        <p>• 专车专享权益卡片展示清晰，包含仪表盘和 APP 充值两张图片</p>
+                        <p>• 页面无明显崩溃或卡死现象</p>
+                        <p>• 优惠券样式符合月度优惠券设计规范</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 依赖项 -->
+            <div class="section">
+                <div class="section-title">5. 依赖项</div>
+                <div class="section-content">
+                    <ul>
+                        <li>后端需提前配置并推送绑定车牌专用的优惠券至用户账户</p>
+                        <li>支付接口需支持传入优惠券参数自动抵扣金额</p>
+                        <li>车辆信息需通过用户授权或扫码获取</p>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 简单的空脚本，保持页面干净
+        console.log('需求范围说明页面已加载');
+    </script>
+</body>
+</html>
