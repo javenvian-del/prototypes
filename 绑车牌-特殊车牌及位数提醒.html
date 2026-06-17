@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>绑定车牌 · 特殊车牌及位数提醒 · 设计稿</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #E8EAF0;
+  font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  padding: 48px 40px 80px;
+}
+
+/* ═══ DOC HEADER ═══ */
+.doc-header { margin-bottom: 40px; }
+.doc-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #EFF6FF; color: #3B82F6;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  padding: 4px 12px; border-radius: 20px; margin-bottom: 12px; text-transform: uppercase;
+}
+.doc-title {
+  font-size: 26px; font-weight: 800; color: #111827;
+  margin-bottom: 8px; letter-spacing: -0.5px;
+}
+.doc-meta { font-size: 14px; color: #6B7280; line-height: 1.6; }
+.doc-meta strong { color: #374151; }
+.doc-divider { height: 1px; background: #D1D5DB; margin-top: 24px; }
+
+/* ═══ SECTION TITLE ═══ */
+.section-heading {
+  font-size: 12px; font-weight: 700; color: #9CA3AF;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 20px; margin-top: 40px;
+}
+
+/* ═══ SCREENS ROW ═══ */
+.screens-row {
+  display: flex; gap: 48px;
+  overflow-x: auto; padding-bottom: 20px;
+  align-items: flex-start;
+}
+
+/* ═══ SCREEN WRAP ═══ */
+.screen-wrap {
+  flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center;
+}
+.screen-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #F3F4F6; border-radius: 20px;
+  padding: 5px 12px; margin-bottom: 8px;
+  font-size: 12px; font-weight: 600; color: #374151;
+}
+.badge-num {
+  width: 18px; height: 18px;
+  background: #111827; color: #fff;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800;
+}
+.screen-desc {
+  font-size: 12px; color: #9CA3AF;
+  text-align: center; margin-bottom: 16px;
+  line-height: 1.55; max-width: 280px;
+}
+
+/* ═══ PHONE ═══ */
+.phone {
+  width: 375px; height: 780px;
+  background: #fff; border-radius: 40px;
+  overflow: hidden; position: relative;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.07),
+    0 4px 8px rgba(0,0,0,0.04),
+    0 16px 40px rgba(0,0,0,0.1),
+    0 40px 80px rgba(0,0,0,0.06);
+}
+
+/* ═══ STATUS BAR ═══ */
+.status-bar {
+  height: 44px; background: #fff;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 22px 8px; flex-shrink: 0;
+}
+.status-time { font-size: 15px; font-weight: 700; color: #000; }
+.status-right { display: flex; align-items: center; gap: 5px; }
+.sig {
+  display: flex; align-items: flex-end; gap: 1.5px; height: 11px;
+}
+.sig span {
+  display: block; width: 2.5px; background: #000; border-radius: 1px;
+}
+.sig span:nth-child(1){height:4px}
+.sig span:nth-child(2){height:7px}
+.sig span:nth-child(3){height:9px}
+.sig span:nth-child(4){height:11px}
+.wifi-dot {
+  width: 12px; height: 9px;
+  border: 1.5px solid #000; border-bottom: none;
+  border-radius: 12px 12px 0 0; margin-top: 2px;
+  position: relative;
+}
+.wifi-dot::before {
+  content:''; position:absolute; bottom:-2px; left:50%; transform:translateX(-50%);
+  width:3px; height:3px; background:#000; border-radius:50%;
+}
+.bat-wrap { display: flex; align-items: center; gap: 1px; }
+.bat-body {
+  width: 22px; height: 11px;
+  border: 1.5px solid #000; border-radius: 3px;
+  position: relative; overflow: hidden;
+}
+.bat-fill {
+  position: absolute; top: 1px; left: 1px; bottom: 1px;
+  width: 80%; background: #000; border-radius: 1px;
+}
+.bat-cap { width: 2.5px; height: 5px; background: #000; border-radius: 0 2px 2px 0; }
+
+/* ═══ NAV BAR ═══ */
+.nav-bar {
+  height: 44px; background: #fff;
+  border-bottom: 0.5px solid #E5E7EB;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; flex-shrink: 0;
+}
+.nav-back {
+  position: absolute; left: 14px;
+  font-size: 30px; color: #000; line-height: 1;
+  font-weight: 300; cursor: pointer; padding: 4px;
+}
+.nav-title { font-size: 17px; font-weight: 700; color: #000; }
+
+/* ═══ PAGE BG ═══ */
+.page-bg {
+  background: #F5F5F5;
+  height: calc(780px - 44px - 44px);
+  position: relative; overflow: hidden;
+}
+
+/* ═══ NOTICE ═══ */
+.notice-section {
+  background: #fff;
+  padding: 16px 16px 18px;
+  margin-bottom: 10px;
+}
+.notice-text {
+  font-size: 14px; color: #4B5563; line-height: 1.65;
+}
+
+/* ═══ INPUT SECTION ═══ */
+.input-section { background: #fff; }
+.plate-row {
+  display: flex; align-items: center;
+  height: 56px; padding: 0 16px;
+}
+.province-btn {
+  display: flex; align-items: center; gap: 4px;
+  background: #E8F6F1; border-radius: 8px;
+  padding: 8px 10px 8px 12px;
+  min-width: 66px; flex-shrink: 0;
+  cursor: pointer; border: none; outline: none;
+}
+.province-btn.special { background: #FFF7ED; }
+.province-char { font-size: 17px; font-weight: 700; color: #059669; }
+.province-btn.special .province-char { color: #D97706; }
+.province-arrow { font-size: 9px; color: #059669; margin-top: 1px; }
+.province-btn.special .province-arrow { color: #D97706; }
+.row-divider {
+  width: 1px; height: 18px;
+  background: #D1D5DB; margin: 0 14px; flex-shrink: 0;
+}
+.plate-text {
+  flex: 1; font-size: 16px; color: #1A1A1A;
+}
+.plate-placeholder {
+  flex: 1; font-size: 15px; color: #C7C7CC;
+}
+
+/* ═══ SAVE BUTTON ═══ */
+.save-btn-wrap {
+  position: absolute; bottom: 30px; left: 16px; right: 16px;
+}
+.save-btn {
+  width: 100%; height: 52px;
+  background: #1A1A1A; border: none; border-radius: 26px;
+  font-size: 16px; font-weight: 500; color: #fff;
+  cursor: pointer; font-family: inherit;
+}
+
+/* ═══ MODAL OVERLAY ═══ */
+.modal-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex; align-items: flex-end; z-index: 10;
+}
+
+/* ═══ BOTTOM SHEET ═══ */
+.bottom-sheet {
+  width: 100%; background: #fff;
+  border-radius: 20px 20px 0 0;
+  padding-bottom: 34px;
+}
+.sheet-handle-wrap {
+  padding: 12px 0 6px;
+  display: flex; justify-content: center;
+}
+.sheet-handle {
+  width: 36px; height: 4px;
+  background: #D1D5DB; border-radius: 2px;
+}
+.sheet-body { padding: 8px 24px 0; }
+.sheet-icon {
+  width: 54px; height: 54px;
+  background: #FFF7ED; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+}
+.sheet-title {
+  font-size: 17px; font-weight: 700; color: #111827;
+  text-align: center; margin-bottom: 10px;
+}
+.sheet-msg {
+  font-size: 14px; color: #6B7280;
+  text-align: center; line-height: 1.7;
+  margin-bottom: 24px;
+}
+.sheet-actions { display: flex; gap: 10px; }
+.btn-back {
+  flex: 1; height: 50px;
+  background: #F3F4F6; border: none; border-radius: 25px;
+  font-size: 15px; color: #374151; font-weight: 500;
+  cursor: pointer; font-family: inherit;
+}
+.btn-confirm {
+  flex: 1; height: 50px;
+  background: #1A1A1A; border: none; border-radius: 25px;
+  font-size: 15px; color: #fff; font-weight: 500;
+  cursor: pointer; font-family: inherit;
+}
+
+/* ═══ PROVINCE PICKER ═══ */
+.picker-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex; align-items: flex-end; z-index: 20;
+}
+.picker-sheet {
+  width: 100%; background: #fff;
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
+}
+.picker-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px 12px;
+  border-bottom: 0.5px solid #E5E7EB;
+}
+.picker-title { font-size: 16px; font-weight: 700; color: #1A1A1A; }
+.picker-close {
+  width: 28px; height: 28px;
+  background: #F3F4F6; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: #6B7280; cursor: pointer;
+}
+.picker-section-label {
+  font-size: 11px; font-weight: 600; color: #9CA3AF;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  padding: 12px 16px 6px;
+}
+.province-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 7px; padding: 4px 14px 12px;
+}
+.prov-item {
+  height: 36px; background: #F3F4F6; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 600; color: #374151; cursor: pointer;
+}
+.prov-item.active { background: #E8F6F1; color: #059669; }
+.prov-item.special-item { background: #FFF7ED; color: #D97706; }
+.special-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 7px; padding: 4px 14px 20px;
+}
+
+/* ═══ SPEC TABLE ═══ */
+.spec-section {
+  margin-top: 48px; max-width: 900px;
+}
+.spec-title {
+  font-size: 15px; font-weight: 700; color: #111827;
+  margin-bottom: 16px;
+}
+.spec-table {
+  width: 100%; border-collapse: collapse;
+  background: #fff; border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.spec-table th {
+  background: #F9FAFB; padding: 12px 16px;
+  font-size: 12px; font-weight: 700; color: #6B7280;
+  text-align: left; border-bottom: 1px solid #E5E7EB;
+  letter-spacing: 0.3px;
+}
+.spec-table td {
+  padding: 14px 16px; font-size: 13px; color: #374151;
+  border-bottom: 1px solid #F3F4F6; line-height: 1.6;
+  vertical-align: top;
+}
+.spec-table tr:last-child td { border-bottom: none; }
+.tag-trigger {
+  display: inline-block; background: #FFF7ED; color: #D97706;
+  font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+}
+.tag-action {
+  display: inline-block; background: #F0FDF4; color: #16A34A;
+  font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+}
+.tag-skip {
+  display: inline-block; background: #EFF6FF; color: #3B82F6;
+  font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<div class="doc-header">
+  <div class="doc-tag">充电停车 · 车牌绑定</div>
+  <div class="doc-title">绑定车牌 · 特殊车牌绑定能力及车牌位数提醒</div>
+  <div class="doc-meta">
+    <strong>BRD 设计稿</strong>&ensp;·&ensp;2026-06-17
+    &ensp;·&ensp;
+    覆盖场景：① 7位车牌提示 &ensp;② 非标前缀提示（取消汉字强校验）
+    &ensp;·&ensp;三端一致（iOS / Android / 小程序）
+  </div>
+  <div class="doc-divider"></div>
+</div>
+
+<!-- ═══════════ SCREENS ═══════════ -->
+<div class="section-heading">页面状态流转</div>
+<div class="screens-row">
+
+  <!-- ── SCREEN 1: Default ── -->
+  <div class="screen-wrap">
+    <div class="screen-badge"><span class="badge-num">01</span> 默认状态</div>
+    <div class="screen-desc">用户进入页面，尚未填写车牌<br>标准省份前缀 "京"，输入框为空</div>
+    <div class="phone">
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-right">
+          <div class="sig"><span></span><span></span><span></span><span></span></div>
+          <div class="wifi-dot"></div>
+          <div class="bat-wrap">
+            <div class="bat-body"><div class="bat-fill"></div></div>
+            <div class="bat-cap"></div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <span class="nav-back">‹</span>
+        <span class="nav-title">绑定车牌</span>
+      </div>
+      <div class="page-bg">
+        <div class="notice-section">
+          <div class="notice-text">请确保所填车牌信息准确，车辆需安装正式牌照，临牌、无牌或车牌填写错误将无法享受充电减免停车费优惠。</div>
+        </div>
+        <div class="input-section">
+          <div class="plate-row">
+            <button class="province-btn">
+              <span class="province-char">京</span>
+              <span class="province-arrow">▾</span>
+            </button>
+            <div class="row-divider"></div>
+            <span class="plate-placeholder">请输入您的车牌号</span>
+          </div>
+        </div>
+        <div class="save-btn-wrap">
+          <button class="save-btn">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 2: Province Picker Open ── -->
+  <div class="screen-wrap">
+    <div class="screen-badge"><span class="badge-num">02</span> 省份选择器</div>
+    <div class="screen-desc">点击省份前缀区域后弹出选择器<br>含港澳台等非标前缀选项（橙色标注）</div>
+    <div class="phone">
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-right">
+          <div class="sig"><span></span><span></span><span></span><span></span></div>
+          <div class="wifi-dot"></div>
+          <div class="bat-wrap">
+            <div class="bat-body"><div class="bat-fill"></div></div>
+            <div class="bat-cap"></div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <span class="nav-back">‹</span>
+        <span class="nav-title">绑定车牌</span>
+      </div>
+      <div class="page-bg">
+        <div class="notice-section">
+          <div class="notice-text">请确保所填车牌信息准确，车辆需安装正式牌照，临牌、无牌或车牌填写错误将无法享受充电减免停车费优惠。</div>
+        </div>
+        <div class="input-section">
+          <div class="plate-row">
+            <button class="province-btn" style="background:#E8F6F1">
+              <span class="province-char">京</span>
+              <span class="province-arrow" style="transform:rotate(180deg); display:inline-block">▾</span>
+            </button>
+            <div class="row-divider"></div>
+            <span class="plate-placeholder">请输入您的车牌号</span>
+          </div>
+        </div>
+        <div class="save-btn-wrap">
+          <button class="save-btn">保存</button>
+        </div>
+        <!-- Province Picker -->
+        <div class="picker-overlay">
+          <div class="picker-sheet">
+            <div class="picker-header">
+              <span class="picker-title">选择省份/地区</span>
+              <span class="picker-close">✕</span>
+            </div>
+            <div class="picker-section-label">中国大陆</div>
+            <div class="province-grid">
+              <div class="prov-item active">京</div>
+              <div class="prov-item">津</div>
+              <div class="prov-item">沪</div>
+              <div class="prov-item">渝</div>
+              <div class="prov-item">冀</div>
+              <div class="prov-item">豫</div>
+              <div class="prov-item">云</div>
+              <div class="prov-item">辽</div>
+              <div class="prov-item">黑</div>
+              <div class="prov-item">湘</div>
+              <div class="prov-item">皖</div>
+              <div class="prov-item">鲁</div>
+              <div class="prov-item">新</div>
+              <div class="prov-item">苏</div>
+              <div class="prov-item">浙</div>
+              <div class="prov-item">赣</div>
+              <div class="prov-item">鄂</div>
+              <div class="prov-item">桂</div>
+              <div class="prov-item">甘</div>
+              <div class="prov-item">晋</div>
+              <div class="prov-item">蒙</div>
+              <div class="prov-item">陕</div>
+              <div class="prov-item">吉</div>
+              <div class="prov-item">闽</div>
+              <div class="prov-item">贵</div>
+              <div class="prov-item">粤</div>
+              <div class="prov-item">川</div>
+              <div class="prov-item">青</div>
+              <div class="prov-item">琼</div>
+              <div class="prov-item">宁</div>
+              <div class="prov-item">藏</div>
+            </div>
+            <div class="picker-section-label">港澳台及其他</div>
+            <div class="special-grid">
+              <div class="prov-item special-item">港</div>
+              <div class="prov-item special-item">澳</div>
+              <div class="prov-item special-item">台</div>
+              <div class="prov-item special-item">军</div>
+              <div class="prov-item special-item">其他</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 3: 7-digit warning ── -->
+  <div class="screen-wrap">
+    <div class="screen-badge"><span class="badge-num">03</span> 7位车牌提示</div>
+    <div class="screen-desc">用户输入 7 位车牌（如 "京A12345"）<br>点击保存后弹出确认弹窗</div>
+    <div class="phone">
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-right">
+          <div class="sig"><span></span><span></span><span></span><span></span></div>
+          <div class="wifi-dot"></div>
+          <div class="bat-wrap">
+            <div class="bat-body"><div class="bat-fill"></div></div>
+            <div class="bat-cap"></div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <span class="nav-back">‹</span>
+        <span class="nav-title">绑定车牌</span>
+      </div>
+      <div class="page-bg">
+        <div class="notice-section">
+          <div class="notice-text">请确保所填车牌信息准确，车辆需安装正式牌照，临牌、无牌或车牌填写错误将无法享受充电减免停车费优惠。</div>
+        </div>
+        <div class="input-section">
+          <div class="plate-row">
+            <button class="province-btn">
+              <span class="province-char">京</span>
+              <span class="province-arrow">▾</span>
+            </button>
+            <div class="row-divider"></div>
+            <span class="plate-text">A12345</span>
+          </div>
+        </div>
+        <div class="save-btn-wrap">
+          <button class="save-btn">保存</button>
+        </div>
+        <!-- Modal: 7-digit warning -->
+        <div class="modal-overlay">
+          <div class="bottom-sheet">
+            <div class="sheet-handle-wrap"><div class="sheet-handle"></div></div>
+            <div class="sheet-body">
+              <div class="sheet-icon">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                  <circle cx="14" cy="14" r="13" stroke="#F97316" stroke-width="1.8"/>
+                  <path d="M14 8.5v7.5" stroke="#F97316" stroke-width="2.2" stroke-linecap="round"/>
+                  <circle cx="14" cy="20.5" r="1.4" fill="#F97316"/>
+                </svg>
+              </div>
+              <div class="sheet-title">请确认车牌信息</div>
+              <div class="sheet-msg">识别到您填写的是 <strong>7 位车牌</strong>，请确认车牌填写是否正确。新能源车牌通常为 8 位，如填写错误可能导致停车减免失败。</div>
+              <div class="sheet-actions">
+                <button class="btn-back">返回修改</button>
+                <button class="btn-confirm">确认提交</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 4: Non-standard format warning ── -->
+  <div class="screen-wrap">
+    <div class="screen-badge"><span class="badge-num">04</span> 非标格式提示</div>
+    <div class="screen-desc">前缀为港澳台/军/字母等非汉字省份<br>点击保存不拦截，弹出格式确认弹窗</div>
+    <div class="phone">
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-right">
+          <div class="sig"><span></span><span></span><span></span><span></span></div>
+          <div class="wifi-dot"></div>
+          <div class="bat-wrap">
+            <div class="bat-body"><div class="bat-fill"></div></div>
+            <div class="bat-cap"></div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <span class="nav-back">‹</span>
+        <span class="nav-title">绑定车牌</span>
+      </div>
+      <div class="page-bg">
+        <div class="notice-section">
+          <div class="notice-text">请确保所填车牌信息准确，车辆需安装正式牌照，临牌、无牌或车牌填写错误将无法享受充电减免停车费优惠。</div>
+        </div>
+        <div class="input-section">
+          <div class="plate-row">
+            <button class="province-btn special">
+              <span class="province-char">港</span>
+              <span class="province-arrow">▾</span>
+            </button>
+            <div class="row-divider"></div>
+            <span class="plate-text">AB12345</span>
+          </div>
+        </div>
+        <div class="save-btn-wrap">
+          <button class="save-btn">保存</button>
+        </div>
+        <!-- Modal: non-standard format warning -->
+        <div class="modal-overlay">
+          <div class="bottom-sheet">
+            <div class="sheet-handle-wrap"><div class="sheet-handle"></div></div>
+            <div class="sheet-body">
+              <div class="sheet-icon">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                  <circle cx="14" cy="14" r="13" stroke="#F97316" stroke-width="1.8"/>
+                  <path d="M14 8.5v7.5" stroke="#F97316" stroke-width="2.2" stroke-linecap="round"/>
+                  <circle cx="14" cy="20.5" r="1.4" fill="#F97316"/>
+                </svg>
+              </div>
+              <div class="sheet-title">请确认车牌格式</div>
+              <div class="sheet-msg">检测到您填写的<strong>车牌格式较特殊</strong>，请确认填写是否正确，填写错误可能导致停车减免失败。</div>
+              <div class="sheet-actions">
+                <button class="btn-back">返回修改</button>
+                <button class="btn-confirm">确认提交</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════ SPEC TABLE ═══════════ -->
+<div class="spec-section">
+  <div class="doc-divider" style="margin-bottom:32px"></div>
+  <div class="section-heading">交互规则说明</div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th style="width:120px">场景</th>
+        <th style="width:200px">触发条件</th>
+        <th>弹窗文案</th>
+        <th style="width:160px">按钮行为</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>7位车牌提示</strong></td>
+        <td>
+          <span class="tag-trigger">触发</span><br>
+          <span style="font-size:12px;margin-top:4px;display:block">用户点击保存时，检测到完整车牌字符数 = 7（省份前缀 + 输入内容）</span>
+        </td>
+        <td style="color:#374151">
+          <strong>标题：</strong>请确认车牌信息<br>
+          <strong>正文：</strong>识别到您填写的是 7 位车牌，请确认车牌填写是否正确。新能源车牌通常为 8 位，如填写错误可能导致停车减免失败。
+        </td>
+        <td>
+          <span class="tag-skip">返回修改</span> → 关闭弹窗，回到编辑状态<br><br>
+          <span class="tag-action">确认提交</span> → 关闭弹窗，正常执行保存
+        </td>
+      </tr>
+      <tr>
+        <td><strong>非标格式提示</strong></td>
+        <td>
+          <span class="tag-trigger">触发</span><br>
+          <span style="font-size:12px;margin-top:4px;display:block">用户点击保存时，检测到所选前缀不属于 31 个标准省份汉字（港/澳/台/军/字母等）</span>
+        </td>
+        <td style="color:#374151">
+          <strong>标题：</strong>请确认车牌格式<br>
+          <strong>正文：</strong>检测到您填写的车牌格式较特殊，请确认填写是否正确，填写错误可能导致停车减免失败。
+        </td>
+        <td>
+          <span class="tag-skip">返回修改</span> → 关闭弹窗，回到编辑状态<br><br>
+          <span class="tag-action">确认提交</span> → 关闭弹窗，正常执行保存（不拦截）
+        </td>
+      </tr>
+      <tr>
+        <td><strong>同时触发两种</strong></td>
+        <td>
+          <span class="tag-trigger">触发</span><br>
+          <span style="font-size:12px;margin-top:4px;display:block">非标前缀 + 7位车牌同时满足</span>
+        </td>
+        <td style="color:#374151">
+          优先展示 <strong>7位车牌提示</strong> 弹窗<br>
+          <span style="font-size:12px">（开发同学确认优先级逻辑，也可合并文案同时提示）</span>
+        </td>
+        <td>同上</td>
+      </tr>
+      <tr>
+        <td><strong>正常提交</strong></td>
+        <td>
+          <span class="tag-action">不触发</span><br>
+          <span style="font-size:12px;margin-top:4px;display:block">标准省份前缀 + 8位车牌</span>
+        </td>
+        <td style="color:#9CA3AF;font-style:italic">无弹窗，直接保存</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════ NOTES ═══════════ -->
+<div class="spec-section" style="margin-top:32px">
+  <div class="section-heading">设计备注</div>
+  <table class="spec-table">
+    <tbody>
+      <tr>
+        <td style="width:160px;color:#6B7280;font-size:12px;font-weight:600">已删除需求</td>
+        <td style="color:#9CA3AF;text-decoration:line-through">
+          增加车牌前缀（临/无/民航）、增加车牌后缀（应急）— 已在 BRD 中划线取消，不在本期设计范围
+        </td>
+      </tr>
+      <tr>
+        <td style="color:#6B7280;font-size:12px;font-weight:600">省份选择器</td>
+        <td style="color:#374151">港澳台/军/其他 选项以橙色区分，用户选择后前缀按钮背景同步变为橙色，便于识别为特殊格式</td>
+      </tr>
+      <tr>
+        <td style="color:#6B7280;font-size:12px;font-weight:600">历史数据</td>
+        <td style="color:#374151">已绑定的历史车牌不触发任何新校验逻辑，展示不受影响</td>
+      </tr>
+      <tr>
+        <td style="color:#6B7280;font-size:12px;font-weight:600">三端一致</td>
+        <td style="color:#374151">iOS / Android / 微信小程序 / 支付宝小程序 交互逻辑一致，弹窗文案一致</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>
