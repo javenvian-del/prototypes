@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>代客下单 - 充电运营平台</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; font-size: 14px; background: #f0f2f5; display: flex; height: 100vh; overflow: hidden; }
+
+  /* ===== 侧边栏 ===== */
+  .sidebar { width: 180px; min-width: 180px; background: #173B2F; color: #fff; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
+  .sidebar-logo { padding: 18px 16px 14px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .sidebar-logo .logo-icon { width: 28px; height: 28px; background: #0EA080; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+  .sidebar-logo .logo-text { font-size: 14px; font-weight: 600; letter-spacing: 0.5px; }
+  .nav-section { padding: 8px 0; }
+  .nav-item { display: flex; align-items: center; justify-content: space-between; padding: 9px 16px; cursor: pointer; color: rgba(255,255,255,0.75); font-size: 13px; transition: all 0.15s; }
+  .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .nav-item.parent { font-weight: 500; }
+  .nav-item.open { background: rgba(255,255,255,0.04); }
+  .nav-sub-item { padding: 8px 16px 8px 32px; cursor: pointer; color: rgba(255,255,255,0.65); font-size: 13px; transition: all 0.15s; }
+  .nav-sub-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .nav-sub-item.active { color: #fff; background: rgba(14,160,128,0.35); }
+  .arrow { font-size: 10px; transition: transform 0.2s; }
+  .arrow.open { transform: rotate(90deg); }
+  .nav-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 4px 0; }
+  .sidebar-bottom { margin-top: auto; padding: 16px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 8px; }
+  .avatar { width: 28px; height: 28px; border-radius: 50%; background: #0EA080; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+  .username { font-size: 13px; color: rgba(255,255,255,0.8); }
+
+  /* ===== 主内容区 ===== */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+  .topbar { background: #fff; height: 52px; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e8eaed; flex-shrink: 0; }
+  .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #8c8c8c; }
+  .breadcrumb span.cur { color: #1a1a1a; font-weight: 500; }
+  .breadcrumb .sep { color: #d0d0d0; }
+  .breadcrumb .link { cursor: pointer; color: #8c8c8c; }
+  .breadcrumb .link:hover { color: #0EA080; }
+
+  .content { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+  /* ===== 通用卡片 ===== */
+  .card { background: #fff; border-radius: 8px; border: 1px solid #e8eaed; margin-bottom: 16px; }
+  .card-header { padding: 14px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+  .card-title { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+  .card-body { padding: 16px 20px; }
+
+  /* ===== 按钮 ===== */
+  .btn { height: 32px; padding: 0 16px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500; border: none; transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px; }
+  .btn-default { background: #fff; border: 1px solid #d9d9d9; color: #555; }
+  .btn-default:hover { border-color: #0EA080; color: #0EA080; }
+  .btn-primary { background: #0EA080; color: #fff; }
+  .btn-primary:hover { background: #0c8a6e; }
+  .btn-primary:disabled { background: #b2dfd5; cursor: not-allowed; }
+  .btn-link { background: none; border: none; color: #0EA080; cursor: pointer; font-size: 13px; padding: 0; }
+  .btn-link:hover { color: #0c8a6e; text-decoration: underline; }
+
+  /* ===== 页面标题栏 ===== */
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .page-title { font-size: 16px; font-weight: 600; color: #1a1a1a; }
+  .back-btn { width: 28px; height: 28px; border-radius: 6px; background: #f5f5f5; border: 1px solid #e8e8e8; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; color: #666; margin-right: 10px; }
+  .back-btn:hover { background: #eee; }
+
+  /* ===== 列表页 搜索栏 ===== */
+  .filter-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .filter-row input, .filter-row select {
+    height: 32px; border: 1px solid #d9d9d9; border-radius: 4px;
+    padding: 0 10px; font-size: 13px; color: #333; outline: none;
+    transition: border 0.15s; background: #fff;
+  }
+  .filter-row input:focus, .filter-row select:focus { border-color: #0EA080; }
+  .filter-label { font-size: 13px; color: #666; white-space: nowrap; }
+
+  /* ===== 表格 ===== */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th { background: #fafafa; padding: 11px 14px; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #e8e8e8; white-space: nowrap; }
+  .data-table td { padding: 13px 14px; border-bottom: 1px solid #f0f0f0; color: #333; vertical-align: middle; }
+  .data-table tr:hover td { background: #f9fffe; }
+  .data-table tr:last-child td { border-bottom: none; }
+
+  /* 状态标签 */
+  .tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 3px; font-size: 12px; font-weight: 500; }
+  .tag-success { background: #f6ffed; border: 1px solid #b7eb8f; color: #389e0d; }
+  .tag-error { background: #fff1f0; border: 1px solid #ffa39e; color: #cf1322; }
+  .tag-processing { background: #e6f7ff; border: 1px solid #91d5ff; color: #096dd9; }
+  .tag-partial { background: #fff7e6; border: 1px solid #ffd591; color: #d46b08; }
+
+  /* 进度条 */
+  .progress-bar { width: 80px; height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 6px; }
+  .progress-bar-inner { height: 100%; background: #0EA080; border-radius: 3px; }
+  .progress-bar-inner.has-error { background: linear-gradient(to right, #0EA080 var(--ok), #ffa39e var(--ok)); }
+
+  /* ===== 详情页 ===== */
+  .detail-stats { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .stat-card { flex: 1; min-width: 120px; background: #fff; border: 1px solid #e8eaed; border-radius: 6px; padding: 14px 16px; }
+  .stat-card .stat-val { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 2px; }
+  .stat-card .stat-val.green { color: #0EA080; }
+  .stat-card .stat-val.red { color: #f5222d; }
+  .stat-card .stat-val.blue { color: #1677ff; }
+  .stat-card .stat-label { font-size: 12px; color: #888; }
+
+  /* ===== 抽屉步骤区 ===== */
+  .step-section { margin-bottom: 24px; }
+  .step-label-title { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .step-hint { font-size: 12px; color: #aaa; font-weight: 400; }
+  .parse-banner { display: flex; align-items: flex-start; gap: 8px; padding: 10px 14px; border-radius: 6px; font-size: 13px; line-height: 1.6; }
+  .parse-banner.ok  { background: #f6ffed; border: 1px solid #b7eb8f; color: #389e0d; }
+  .parse-banner.err { background: #fff1f0; border: 1px solid #ffa39e; color: #cf1322; }
+  .parse-banner .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .parse-banner .detail { font-size: 12px; color: #888; margin-top: 2px; }
+
+  /* ===== 抽屉（新建下单） ===== */
+  .drawer-mask { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 500; }
+  .drawer-mask.show { display: block; }
+  .drawer { position: fixed; top: 0; right: -600px; width: 600px; height: 100vh; background: #fff; box-shadow: -4px 0 20px rgba(0,0,0,0.12); z-index: 501; display: flex; flex-direction: column; transition: right 0.25s ease; }
+  .drawer.show { right: 0; }
+  .drawer-header { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .drawer-title { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+  .drawer-close { cursor: pointer; color: #aaa; font-size: 18px; line-height: 1; }
+  .drawer-close:hover { color: #555; }
+  .drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
+  .drawer-footer { padding: 14px 20px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
+
+  /* 上传区 */
+  .tips-box { background: #f0faf7; border: 1px solid #b7e8da; border-radius: 6px; padding: 12px 16px; margin-bottom: 16px; }
+  .tips-title { font-size: 13px; font-weight: 600; color: #0EA080; margin-bottom: 6px; }
+  .tips-list li { font-size: 12px; color: #555; line-height: 1.9; padding-left: 12px; position: relative; list-style: none; }
+  .tips-list li::before { content: '·'; position: absolute; left: 0; color: #0EA080; font-size: 16px; line-height: 1.4; }
+
+  .template-preview { background: #fafafa; border: 1px solid #e8e8e8; border-radius: 6px; margin-bottom: 16px; overflow: hidden; }
+  .template-header { background: #f0f0f0; padding: 7px 12px; display: flex; font-size: 11px; color: #888; }
+  .template-header span, .template-row span { flex: 1; padding: 0 4px; }
+  .template-header span:first-child { flex: 1.4; }
+  .template-row span:first-child { flex: 1.4; }
+  .template-header .req { color: #f5222d; }
+  .template-row { padding: 5px 12px; display: flex; font-size: 11px; color: #bbb; border-top: 1px solid #f0f0f0; font-style: italic; }
+  .optional-badge { display: inline-block; font-size: 10px; color: #aaa; border: 1px solid #d9d9d9; border-radius: 3px; padding: 0 4px; margin-left: 3px; vertical-align: middle; }
+
+  .upload-zone { border: 2px dashed #d9d9d9; border-radius: 8px; padding: 28px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fafafa; }
+  .upload-zone:hover, .upload-zone.dragover { border-color: #0EA080; background: #f0faf7; }
+  .upload-zone.has-file { border-color: #0EA080; background: #f0faf7; pointer-events: none; }
+  .upload-icon { font-size: 32px; margin-bottom: 6px; }
+  .upload-text { font-size: 14px; color: #333; font-weight: 500; }
+  .upload-sub { font-size: 12px; color: #aaa; margin-top: 2px; }
+  .file-info { display: none; align-items: center; gap: 10px; padding: 10px 14px; background: #f0faf7; border: 1px solid #b7e8da; border-radius: 6px; margin-top: 10px; }
+  .file-info.show { display: flex; }
+  .file-info .file-name { flex: 1; font-size: 13px; color: #1a1a1a; font-weight: 500; }
+  .file-info .file-size { font-size: 12px; color: #888; }
+  .file-info .remove-file { cursor: pointer; color: #aaa; }
+  .file-info .remove-file:hover { color: #f5222d; }
+
+  .preview-section { display: none; margin-top: 16px; }
+  .preview-section.show { display: block; }
+  .preview-stats { font-size: 13px; color: #555; margin-bottom: 8px; }
+  .preview-stats .count { font-weight: 600; color: #0EA080; }
+  .preview-stats .err-count { font-weight: 600; color: #f5222d; }
+  .preview-table-wrap { border: 1px solid #e8e8e8; border-radius: 6px; overflow: hidden; }
+  .data-table th.sm { padding: 9px 10px; }
+  .data-table td.sm { padding: 9px 10px; }
+  .error-tag { display: inline-flex; align-items: center; gap: 3px; background: #fff1f0; border: 1px solid #ffa39e; color: #f5222d; font-size: 11px; padding: 1px 6px; border-radius: 3px; }
+  .success-tag { display: inline-flex; align-items: center; background: #f6ffed; border: 1px solid #b7eb8f; color: #52c41a; font-size: 11px; padding: 1px 6px; border-radius: 3px; }
+
+  /* 确认弹窗 */
+  .modal-mask { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-mask.show { display: flex; }
+  .modal { background: #fff; border-radius: 8px; width: 400px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+  .modal-header { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; font-size: 15px; font-weight: 600; color: #1a1a1a; display: flex; align-items: center; justify-content: space-between; }
+  .modal-close { cursor: pointer; color: #aaa; font-size: 18px; }
+  .modal-close:hover { color: #555; }
+  .modal-body { padding: 20px; }
+  .modal-footer { padding: 12px 20px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 8px; }
+  .submit-summary { font-size: 13px; color: #555; line-height: 2.2; }
+  .submit-summary .val { color: #1a1a1a; font-weight: 600; }
+  .warn-box { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 4px; padding: 8px 12px; margin-top: 10px; font-size: 12px; color: #8a6d00; }
+
+  /* 分页 */
+  .pagination { display: flex; align-items: center; justify-content: flex-end; padding: 14px 20px; gap: 4px; border-top: 1px solid #f0f0f0; }
+  .page-btn { width: 28px; height: 28px; border: 1px solid #d9d9d9; border-radius: 4px; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #555; }
+  .page-btn:hover { border-color: #0EA080; color: #0EA080; }
+  .page-btn.active { background: #0EA080; border-color: #0EA080; color: #fff; }
+  .page-total { font-size: 12px; color: #888; margin-right: 8px; }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- 侧边栏 -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">充</div>
+    <div class="logo-text">充电运营平台</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-item parent">定价管理 <span class="arrow">›</span></div>
+    <div class="nav-item parent">电价管理 <span class="arrow">›</span></div>
+    <div class="nav-item parent">活动中心 <span class="arrow">›</span></div>
+    <div class="nav-item parent">场站管理 <span class="arrow">›</span></div>
+    <div class="nav-item parent">增长工具 <span class="arrow">›</span></div>
+    <div class="nav-item parent open">客服工具 <span class="arrow open">›</span></div>
+    <div>
+      <div class="nav-sub-item active">代客下单</div>
+      <div class="nav-sub-item">工单管理</div>
+    </div>
+    <div class="nav-item parent">数据看板 <span class="arrow">›</span></div>
+    <div class="nav-divider"></div>
+    <div class="nav-item parent">费率管理 <span class="arrow">›</span></div>
+    <div class="nav-item parent">账务管理 <span class="arrow">›</span></div>
+    <div class="nav-item parent">结算管理 <span class="arrow">›</span></div>
+    <div class="nav-item parent">发票管理 <span class="arrow">›</span></div>
+    <div class="nav-divider"></div>
+    <div class="nav-item parent">调试验收 <span class="arrow">›</span></div>
+    <div class="nav-item parent">设备管理 <span class="arrow">›</span></div>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="avatar">范</div>
+    <div class="username">范文杰</div>
+  </div>
+</div>
+
+<!-- 主内容 -->
+<div class="main">
+  <!-- 顶部面包屑 -->
+  <div class="topbar">
+    <div class="breadcrumb" id="breadcrumb">
+      <span>客服工具</span>
+      <span class="sep">/</span>
+      <span class="cur" id="breadcrumbCur">代客下单</span>
+    </div>
+  </div>
+
+  <!-- =========== 列表页 =========== -->
+  <div class="content" id="listPage">
+    <div class="page-header">
+      <div class="page-title">代客下单</div>
+      <button class="btn btn-primary" onclick="openDrawer()">＋ 新建代客下单</button>
+    </div>
+
+    <!-- 筛选栏 -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-body" style="padding:14px 20px;">
+        <div class="filter-row">
+          <span class="filter-label">批次ID</span>
+          <input placeholder="请输入批次ID" style="width:160px;">
+          <span class="filter-label">操作人</span>
+          <input placeholder="请输入操作人" style="width:130px;">
+          <span class="filter-label">创建时间</span>
+          <input type="date" style="width:140px;" value="2026-07-01">
+          <span style="color:#aaa; font-size:13px;">至</span>
+          <input type="date" style="width:140px;" value="2026-07-16">
+          <button class="btn btn-default" style="margin-left:4px;">重置</button>
+          <button class="btn btn-primary">查询</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 列表表格 -->
+    <div class="card">
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>批次ID</th>
+              <th>文件名</th>
+              <th>创建时间</th>
+              <th>操作人</th>
+              <th>提交总数</th>
+              <th>状态</th>
+              <th>充值中</th>
+              <th>充值成功</th>
+              <th>充值失败</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="listBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span class="page-total">共 6 条</span>
+        <div class="page-btn">‹</div>
+        <div class="page-btn active">1</div>
+        <div class="page-btn">2</div>
+        <div class="page-btn">›</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========== 详情页 =========== -->
+  <div class="content" id="detailPage" style="display:none;">
+    <div class="page-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="back-btn" onclick="goBack()">←</div>
+        <div class="page-title">代客下单详情</div>
+      </div>
+    </div>
+
+    <!-- 批次基本信息 -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-header"><div class="card-title">批次信息</div></div>
+      <div class="card-body">
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 16px 0;">
+          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">批次ID</div><div style="font-size:13px;font-weight:600;" id="d_batchId">—</div></div>
+          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">文件名</div><div style="font-size:13px;" id="d_filename">—</div></div>
+          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">创建时间</div><div style="font-size:13px;" id="d_time">—</div></div>
+          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">操作人</div><div style="font-size:13px;" id="d_operator">—</div></div>
+          <div><div style="font-size:12px;color:#888;margin-bottom:3px;">渠道ID</div><div style="font-size:13px;" id="d_channel">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="detail-stats" id="d_stats"></div>
+
+    <!-- 明细表格 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">提交明细</div>
+        <div style="display:flex;gap:8px;">
+          <select style="height:28px;border:1px solid #d9d9d9;border-radius:4px;padding:0 8px;font-size:12px;color:#555;">
+            <option>全部状态</option>
+            <option>提交成功</option>
+            <option>提交失败</option>
+          </select>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="sm">行号</th>
+              <th class="sm">三方渠道订单号</th>
+              <th class="sm">渠道ID</th>
+              <th class="sm">充值号码</th>
+              <th class="sm">SKU</th>
+              <th class="sm">提交时间</th>
+              <th class="sm">提交结果</th>
+              <th class="sm">失败原因</th>
+            </tr>
+          </thead>
+          <tbody id="detailBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span class="page-total" id="d_total_label">共 — 条</span>
+        <div class="page-btn">‹</div>
+        <div class="page-btn active">1</div>
+        <div class="page-btn">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =========== 抽屉：新建代客下单 =========== -->
+<div class="drawer-mask" id="drawerMask" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-title">新建代客下单</div>
+    <span class="drawer-close" onclick="closeDrawer()">✕</span>
+  </div>
+  <div class="drawer-body">
+    <!-- 1. 下载模板 -->
+    <div class="step-section">
+      <div class="step-label-title">1、下载模板</div>
+      <button class="btn btn-primary" onclick="downloadTemplate()" style="height:34px;">⬇ 下载模板</button>
+    </div>
+
+    <!-- 2. 上传文件 -->
+    <div class="step-section">
+      <div class="step-label-title">2、上传文件 <span class="step-hint">上传过程中请不要关闭此页面</span></div>
+      <div class="upload-zone" id="drawerUploadZone" onclick="document.getElementById('drawerFileInput').click()"
+           ondragover="onDragOver2(event)" ondragleave="onDragLeave2(event)" ondrop="onDrop2(event)">
+        <div style="font-size:36px;color:#0EA080;margin-bottom:8px;">⬇</div>
+        <div class="upload-text">点击或拖动文件到虚线框内上传</div>
+        <div class="upload-sub">仅支持xlsx等类型文件</div>
+        <input type="file" id="drawerFileInput" accept=".xlsx,.xls" onchange="handleDrawerFile(event)" style="display:none;">
+      </div>
+      <div class="file-info" id="drawerFileInfo">
+        <span style="font-size:16px;color:#888;">🔗</span>
+        <div class="file-name" id="drawerFileName">—</div>
+        <div class="file-size" id="drawerFileSize">—</div>
+        <span class="remove-file" onclick="removeDrawerFile()">✕</span>
+      </div>
+    </div>
+
+    <!-- 3. 解析结果 -->
+    <div class="step-section" id="parseSection" style="display:none;">
+      <div class="step-label-title">3、解析结果</div>
+      <div id="parseResult"></div>
+      <div class="preview-table-wrap" id="drawerPreview" style="display:none; margin-top:12px;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="sm" style="width:40px;">行</th>
+              <th class="sm">三方渠道订单号</th>
+              <th class="sm">渠道ID</th>
+              <th class="sm">充值号码</th>
+              <th class="sm">SKU</th>
+              <th class="sm">校验</th>
+            </tr>
+          </thead>
+          <tbody id="drawerPreviewBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4. 上传数据 -->
+    <div class="step-section" id="submitSection">
+      <div class="step-label-title">4、上传数据 <span class="step-hint">上传后数据将生效</span></div>
+      <button class="btn btn-default" id="drawerSubmitBtn" disabled onclick="openConfirm()">确认上传</button>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-default" onclick="closeDrawer()">取 消</button>
+  </div>
+</div>
+
+<!-- 确认弹窗 -->
+<div class="modal-mask" id="confirmModal">
+  <div class="modal">
+    <div class="modal-header">确认提交 <span class="modal-close" onclick="closeConfirm()">✕</span></div>
+    <div class="modal-body">
+      <div class="submit-summary">
+        本次共解析 <span class="val" id="c_total">—</span> 条数据。<br>
+        若所有行校验通过，将提交整批充值；<br>
+        若存在重复订单号等校验异常，<span style="color:#f5222d;font-weight:600;">整批不予提交</span>，请修正后重新上传。
+      </div>
+      <div class="warn-box" id="c_warn" style="display:none;">⚠️ 当前批次存在校验异常行，整批将不予提交。请下载预览数据排查后重新上传。</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeConfirm()">取 消</button>
+      <button class="btn btn-primary" onclick="doSubmit()">确认提交</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 模拟列表数据 =====
+// status: 'submitting'=提交中  'submitted'=提交成功
+// recharging/rechargSuccess/rechargFail 仅 submitted 时有意义
+const listData = [
+  { id:'PCH2026071601', file:'7月第一批_南京补贴.xlsx',  time:'2026-07-16 10:22:31', operator:'范文杰', channel:'CH001', total:200, status:'submitted',  recharging:5,  rechargSuccess:185, rechargFail:10 },
+  { id:'PCH2026071501', file:'京东7月批次.xlsx',          time:'2026-07-15 17:05:11', operator:'范文杰', channel:'CH002', total:80,  status:'submitted',  recharging:0,  rechargSuccess:75,  rechargFail:5  },
+  { id:'PCH2026071502', file:'代理商A批量充值.xlsx',      time:'2026-07-15 09:43:22', operator:'李明',   channel:'CH001', total:50,  status:'submitted',  recharging:2,  rechargSuccess:48,  rechargFail:0  },
+  { id:'PCH2026071401', file:'政府补贴-合肥.xlsx',        time:'2026-07-14 14:30:00', operator:'范文杰', channel:'CH003', total:300, status:'submitted',  recharging:0,  rechargSuccess:290, rechargFail:10 },
+  { id:'PCH2026071301', file:'6月收尾-京东.xlsx',         time:'2026-07-13 11:20:44', operator:'王芳',   channel:'CH002', total:120, status:'submitting', recharging:null, rechargSuccess:null, rechargFail:null },
+  { id:'PCH2026071302', file:'测试批次01.xlsx',           time:'2026-07-13 09:05:17', operator:'李明',   channel:'CH001', total:10,  status:'submitting', recharging:null, rechargSuccess:null, rechargFail:null },
+];
+
+// ===== 模拟详情数据（每批次共用，演示用） =====
+const detailRows = [
+  { row:1, orderId:'JD20260716001', channel:'CH001', phone:'138****8001', sku:'LX_CARD_100', submitTime:'2026-07-16 10:22:33', result:'success', failReason:'' },
+  { row:2, orderId:'JD20260716002', channel:'CH001', phone:'138****8002', sku:'LX_CARD_200', submitTime:'2026-07-16 10:22:33', result:'success', failReason:'' },
+  { row:3, orderId:'',              channel:'CH001', phone:'138****8003', sku:'LX_CARD_100', submitTime:'2026-07-16 10:22:33', result:'success', failReason:'' },
+  { row:4, orderId:'JD20260716004', channel:'CH001', phone:'138****8004', sku:'LX_CARD_500', submitTime:'2026-07-16 10:22:33', result:'fail',    failReason:'渠道订单号重复' },
+  { row:5, orderId:'',              channel:'CH001', phone:'138****8005', sku:'LX_CARD_100', submitTime:'2026-07-16 10:22:33', result:'success', failReason:'' },
+  { row:6, orderId:'JD20260716006', channel:'CH001', phone:'138****8006', sku:'LX_CARD_300', submitTime:'2026-07-16 10:22:33', result:'success', failReason:'' },
+  { row:7, orderId:'',              channel:'CH001', phone:'138****8007', sku:'LX_CARD_200', submitTime:'2026-07-16 10:22:33', result:'fail',    failReason:'充值号码无效' },
+  { row:8, orderId:'JD20260716008', channel:'CH001', phone:'138****8008', sku:'LX_CARD_100', submitTime:'2026-07-16 10:22:33', result:'success', failReason:'' },
+];
+
+// ===== 抽屉上传模拟数据 =====
+const mockUploadRows = [
+  { row:1, orderId:'JD202407160001', channelId:'CH001', phone:'13800138001', sku:'LX_CARD_100', status:'ok' },
+  { row:2, orderId:'JD202407160002', channelId:'CH001', phone:'13800138002', sku:'LX_CARD_200', status:'ok' },
+  { row:3, orderId:'',               channelId:'CH002', phone:'13800138003', sku:'LX_CARD_100', status:'ok' },
+  { row:4, orderId:'JD202407160001', channelId:'CH001', phone:'13800138004', sku:'LX_CARD_500', status:'error', errMsg:'渠道订单号重复' },
+  { row:5, orderId:'',               channelId:'',      phone:'13800138005', sku:'LX_CARD_100', status:'error', errMsg:'渠道ID不能为空' },
+  { row:6, orderId:'JD202407160006', channelId:'CH003', phone:'13800138006', sku:'LX_CARD_300', status:'ok' },
+  { row:7, orderId:'',               channelId:'CH002', phone:'',            sku:'LX_CARD_200', status:'error', errMsg:'充值号码不能为空' },
+  { row:8, orderId:'JD202407160008', channelId:'CH001', phone:'13800138008', sku:'LX_CARD_100', status:'ok' },
+];
+
+// ===== 渲染列表 =====
+const statusTagMap = {};
+
+function renderList() {
+  const tbody = document.getElementById('listBody');
+  tbody.innerHTML = '';
+  listData.forEach(r => {
+    const isSubmitted = r.status === 'submitted';
+    const statusTag = isSubmitted
+      ? '<span class="tag tag-success">提交成功</span>'
+      : '<span class="tag tag-processing">提交中</span>';
+    const rechargingCell  = isSubmitted ? `<span style="color:#1677ff;font-weight:600;">${r.recharging}</span>` : '<span style="color:#ccc;">—</span>';
+    const successCell     = isSubmitted ? `<span style="color:#0EA080;font-weight:600;">${r.rechargSuccess}</span>` : '<span style="color:#ccc;">—</span>';
+    const failCell        = isSubmitted ? (r.rechargFail > 0 ? `<span style="color:#f5222d;font-weight:600;">${r.rechargFail}</span>` : `<span style="color:#389e0d;font-weight:600;">0</span>`) : '<span style="color:#ccc;">—</span>';
+    const exportBtn       = isSubmitted
+      ? `<button class="btn-link" onclick="downloadResult('${r.id}')">导出充值结果</button>`
+      : `<button class="btn-link" style="color:#bbb;cursor:not-allowed;" disabled>导出充值结果</button>`;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-family:monospace;font-size:12px;color:#555;cursor:pointer;" onclick="goDetail('${r.id}')">${r.id}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.file}">${r.file}</td>
+      <td style="white-space:nowrap;">${r.time}</td>
+      <td>${r.operator}</td>
+      <td style="font-weight:600;">${r.total}</td>
+      <td>${statusTag}</td>
+      <td>${rechargingCell}</td>
+      <td>${successCell}</td>
+      <td>${failCell}</td>
+      <td>${exportBtn}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ===== 跳转详情 =====
+function goDetail(batchId) {
+  const r = listData.find(x => x.id === batchId);
+  document.getElementById('listPage').style.display = 'none';
+  document.getElementById('detailPage').style.display = 'block';
+
+  // 面包屑
+  document.getElementById('breadcrumb').innerHTML = `
+    <span>客服工具</span><span class="sep">/</span>
+    <span class="link" onclick="goBack()">代客下单</span>
+    <span class="sep">/</span>
+    <span class="cur">批次详情</span>`;
+
+  // 基本信息
+  document.getElementById('d_batchId').textContent = r.id;
+  document.getElementById('d_filename').textContent = r.file;
+  document.getElementById('d_time').textContent = r.time;
+  document.getElementById('d_operator').textContent = r.operator;
+  document.getElementById('d_channel').innerHTML = `<code style="background:#f5f5f5;padding:1px 6px;border-radius:3px;font-size:12px;">${r.channel}</code>`;
+
+  // 统计卡
+  document.getElementById('d_stats').innerHTML = `
+    <div class="stat-card"><div class="stat-val">${r.total}</div><div class="stat-label">提交总数</div></div>
+  `;
+
+  // 明细行（用 r 的 total/success/fail 等比例生成）
+  renderDetailRows(r);
+}
+
+function renderDetailRows(r) {
+  const tbody = document.getElementById('detailBody');
+  tbody.innerHTML = '';
+  // 根据批次实际 fail 数量决定 detailRows 的展示
+  detailRows.forEach((row, i) => {
+    // 按批次实际数据调整状态
+    const isErr = row.result === 'fail';
+    const tr = document.createElement('tr');
+    if (isErr) tr.style.background = '#fff2f0';
+    tr.innerHTML = `
+      <td class="sm" style="color:#bbb;">${row.row}</td>
+      <td class="sm" style="font-size:12px;">${row.orderId || '<span style="color:#bbb">—</span>'}</td>
+      <td class="sm"><code style="background:#f5f5f5;padding:1px 5px;border-radius:3px;font-size:11px;">${row.channel}</code></td>
+      <td class="sm">${row.phone}</td>
+      <td class="sm" style="font-size:12px;">${row.sku}</td>
+      <td class="sm" style="font-size:12px;color:#888;">${row.submitTime}</td>
+      <td class="sm">${row.result === 'success'
+        ? '<span class="success-tag">✓ 提交成功</span>'
+        : '<span class="error-tag">✕ 提交失败</span>'}</td>
+      <td class="sm" style="color:#cf1322;font-size:12px;">${row.failReason || '<span style="color:#bbb">—</span>'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('d_total_label').textContent = `共 ${detailRows.length} 条`;
+}
+
+function goBack() {
+  document.getElementById('detailPage').style.display = 'none';
+  document.getElementById('listPage').style.display = 'block';
+  document.getElementById('breadcrumb').innerHTML = `
+    <span>客服工具</span><span class="sep">/</span>
+    <span class="cur" id="breadcrumbCur">代客下单</span>`;
+}
+
+// ===== 抽屉控制 =====
+function openDrawer() {
+  document.getElementById('drawerMask').classList.add('show');
+  document.getElementById('drawer').classList.add('show');
+}
+function closeDrawer() {
+  document.getElementById('drawerMask').classList.remove('show');
+  document.getElementById('drawer').classList.remove('show');
+  removeDrawerFile();
+}
+
+// ===== 上传逻辑 =====
+function handleDrawerFile(e) {
+  const f = e.target.files[0]; if (!f) return; loadDrawerFile(f);
+}
+function onDragOver2(e) { e.preventDefault(); document.getElementById('drawerUploadZone').classList.add('dragover'); }
+function onDragLeave2(e) { document.getElementById('drawerUploadZone').classList.remove('dragover'); }
+function onDrop2(e) { e.preventDefault(); document.getElementById('drawerUploadZone').classList.remove('dragover'); const f = e.dataTransfer.files[0]; if (f) loadDrawerFile(f); }
+
+function loadDrawerFile(file) {
+  document.getElementById('drawerFileName').textContent = file.name;
+  const kb = (file.size / 1024).toFixed(1);
+  document.getElementById('drawerFileSize').textContent = kb > 1024 ? (kb/1024).toFixed(1)+' MB' : kb+' KB';
+  document.getElementById('drawerFileInfo').classList.add('show');
+  document.getElementById('drawerUploadZone').classList.add('has-file');
+  // 显示解析中
+  document.getElementById('parseSection').style.display = 'block';
+  document.getElementById('parseResult').innerHTML = `<div style="font-size:13px;color:#888;padding:8px 0;">解析中…</div>`;
+  document.getElementById('drawerPreview').style.display = 'none';
+  document.getElementById('drawerSubmitBtn').disabled = true;
+  setTimeout(() => renderDrawerPreview(), 600);
+}
+
+function removeDrawerFile() {
+  document.getElementById('drawerFileInfo').classList.remove('show');
+  document.getElementById('drawerUploadZone').classList.remove('has-file');
+  document.getElementById('drawerUploadZone').style.pointerEvents = '';
+  document.getElementById('parseSection').style.display = 'none';
+  document.getElementById('drawerPreview').style.display = 'none';
+  document.getElementById('drawerSubmitBtn').disabled = true;
+  document.getElementById('drawerFileInput').value = '';
+}
+
+function renderDrawerPreview() {
+  const tbody = document.getElementById('drawerPreviewBody');
+  tbody.innerHTML = '';
+  const ok  = mockUploadRows.filter(r=>r.status==='ok').length;
+  const err = mockUploadRows.filter(r=>r.status==='error').length;
+  const total = mockUploadRows.length;
+
+  // 解析结果 banner
+  if (err > 0) {
+    document.getElementById('parseResult').innerHTML = `
+      <div class="parse-banner err">
+        <span class="icon">✕</span>
+        <div>
+          <div>文件解析失败&emsp;总处理 ${total} 行，成功 ${ok} 行，错误提示 ${err} 行，需修改错误数据后重新解析</div>
+        </div>
+      </div>`;
+  } else {
+    document.getElementById('parseResult').innerHTML = `
+      <div class="parse-banner ok">
+        <span class="icon">✓</span>
+        <div>文件解析成功&emsp;总处理 ${total} 行，成功 ${ok} 行，可确认上传</div>
+      </div>`;
+  }
+
+  // 错误明细表（有错才展示）
+  if (err > 0) {
+    const errRows = mockUploadRows.filter(r=>r.status==='error');
+    tbody.innerHTML = '';
+    // 表头说明
+    const thead = document.querySelector('#drawerPreview thead tr');
+    thead.innerHTML = `
+      <th class="sm" style="width:40px;">序号</th>
+      <th class="sm">类型</th>
+      <th class="sm" style="min-width:200px;">原因</th>
+      <th class="sm">在Excel中的行号</th>`;
+    errRows.forEach((row, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="sm">${i+1}</td>
+        <td class="sm"><span class="error-tag">错误</span></td>
+        <td class="sm" style="color:#cf1322;">${row.errMsg}</td>
+        <td class="sm">${row.row}</td>`;
+      tbody.appendChild(tr);
+    });
+    document.getElementById('drawerPreview').style.display = 'block';
+  } else {
+    document.getElementById('drawerPreview').style.display = 'none';
+  }
+
+  document.getElementById('drawerSubmitBtn').disabled = err > 0;
+}
+
+// ===== 确认 & 提交 =====
+function openConfirm() {
+  doSubmit();
+}
+function closeConfirm() { document.getElementById('confirmModal').classList.remove('show'); }
+
+function doSubmit() {
+  closeConfirm();
+  closeDrawer();
+  const fileName = document.getElementById('drawerFileName').textContent || '新建批次.xlsx';
+  const newRow = {
+    id: 'PCH2026071602',
+    file: fileName,
+    time: '2026-07-16 ' + new Date().toTimeString().slice(0,8),
+    operator: '范文杰',
+    channel: 'CH001',
+    total: mockUploadRows.length,
+    status: 'submitting',
+    recharging: null,
+    rechargSuccess: null,
+    rechargFail: null,
+  };
+  listData.unshift(newRow);
+  renderList();
+}
+
+function downloadResult(batchId) {
+  const r = listData.find(x => x.id === batchId);
+  // 结果表 = 原始字段 + 提交结果列
+  const header = '三方渠道订单号,渠道ID,充值号码,SKU,提交结果\n';
+  const rows = detailRows.map(row =>
+    `${row.orderId},${row.channel},${row.phone},${row.sku},${row.result === 'success' ? '提交成功' : '提交失败：' + row.failReason}`
+  ).join('\n');
+  const blob = new Blob(['﻿' + header + rows], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `${batchId}_提交结果.csv`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function downloadTemplate() {
+  const blob = new Blob(['﻿'+content], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = '代客下单导入模板.csv';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// 初始化
+renderList();
+</script>
+</body>
+</html>
