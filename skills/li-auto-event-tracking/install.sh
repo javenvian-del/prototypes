@@ -48,7 +48,9 @@ install_one() {
   chmod +x "$staging/run.sh"
   ln -s "$cache_dir/node_modules" "$staging/node_modules"
   if [ -e "$destination" ]; then
-    mv "$destination" "${destination}.backup-$(date +%Y%m%d%H%M%S)-$$"
+    backup_dir="$cache_dir/backups/$(basename "$(dirname "$(dirname "$destination")")")"
+    mkdir -p "$backup_dir"
+    mv "$destination" "$backup_dir/li-auto-event-tracking-$(date +%Y%m%d%H%M%S)-$$"
   fi
   mv "$staging" "$destination"
   printf 'Installed: %s\n' "$destination"
