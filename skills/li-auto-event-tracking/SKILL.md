@@ -1,11 +1,11 @@
 ---
 name: li-auto-event-tracking
-description: 理想汽车埋点批量创建。先获取用户本次表格链接，或响应“查看模板”提供下载链接，再检查两端登录、确认行区间。独立脚本创建事件并回写名称与标识，已有结果跳过，元素名称特殊字符自动清理。控制token消耗，不频繁读日志，运行中只播报异常和完成。
+description: 理想汽车埋点批量创建。先获取用户本次表格链接，或响应“查看模板”提供模板链接，再检查两端登录、确认行区间。独立脚本创建事件并回写名称与标识，已有结果跳过，元素名称特殊字符自动清理。控制token消耗，不频繁读日志，运行中只播报异常和完成。
 ---
 
 # 理想汽车埋点批量创建
 
-以本目录为技能根目录。执行使用 `scripts/control.mjs`，创建与回写都由脚本完成。运行环境是能访问公司网络的本机 Node.js 20+、Chrome、Playwright。仅需模板时直接返回[下载模板](https://github.com/javenvian-del/prototypes/raw/refs/heads/main/templates/event-tracking-template.xlsx)，到此结束。
+以本目录为技能根目录。执行使用 `scripts/control.mjs`，创建与回写都由脚本完成。运行环境是能访问公司网络的本机 Node.js 20+、Chrome、Playwright。仅需模板时直接返回[查看模板](https://li.feishu.cn/wiki/HQMswPaO7i6F8rkq0hKcFgBVnvd)，到此结束。
 
 ## 执行顺序
 
@@ -15,7 +15,7 @@ description: 理想汽车埋点批量创建。先获取用户本次表格链接�
 
    然后等待回答，不先读取历史配置、不启动浏览器、不询问行区间。即使本机保存过表格链接或登录会话，也不能据此默认选择本次表格。用户已在本次对话提供链接，或明确要求继续本次对话已确认的同一表格时，直接进入下一步。
 
-   用户回复“查看模板”时，只返回[批量创建埋点表格模板下载](https://github.com/javenvian-del/prototypes/raw/refs/heads/main/templates/event-tracking-template.xlsx)，并提示“填写并导入飞书后，把表格链接发给我。”到此结束，不执行登录检查或创建操作。
+   用户回复“查看模板”时，只返回[查看批量创建埋点表格模板](https://li.feishu.cn/wiki/HQMswPaO7i6F8rkq0hKcFgBVnvd)，并提示“按模板填写后，把你要处理的表格链接发给我。”到此结束，不执行登录检查或创建操作。
 
 1. 收到表格链接后，核对本地配置是否对应本次明确选择的表格。首次或更换表格时，在本机运行 `bash run.sh init --sheet-url "用户提供的飞书链接" --platform-url "用户提供的运营平台事件管理页链接"`。运营平台地址未配置且用户尚未提供时，再询问该地址，不猜测内网地址。默认 Sheet1；不同工作表用 `--sheet-name`。配置和会话存放在用户的 `Documents/Codex/li-auto-event-tracking-data`，可用 `LI_AUTO_TRACKING_DATA` 指定其他目录。
 2. **每次运行前**先执行 `bash run.sh check-login`。必须同时返回 `feishu: ready` 和 `platform: ready`。失败时只播报这项异常；执行 `bash run.sh login`，让用户在脚本专用 Chrome 中登录两端，终端按回车后复查。其他浏览器已登录不等于脚本已登录。
