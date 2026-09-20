@@ -9,10 +9,10 @@ description: 理想汽车埋点批量创建。用独立脚本读取飞书表格�
 
 ## 执行顺序
 
-1. 首次或更换表格时，在本机运行 `node scripts/control.mjs init --sheet-url "用户提供的飞书链接" --platform-url "用户提供的运营平台事件管理页链接"`。默认 Sheet1；不同工作表用 `--sheet-name`。配置和会话存放在用户的 `Documents/Codex/li-auto-event-tracking-data`，可用 `LI_AUTO_TRACKING_DATA` 指定其他目录。
-2. **每次运行前**先执行 `node scripts/control.mjs check-login`。必须同时返回 `feishu: ready` 和 `platform: ready`。失败时只播报这项异常；执行 `node scripts/control.mjs login`，让用户在脚本专用 Chrome 中登录两端，终端按回车后复查。其他浏览器已登录不等于脚本已登录。
+1. 首次或更换表格时，在本机运行 `bash run.sh init --sheet-url "用户提供的飞书链接" --platform-url "用户提供的运营平台事件管理页链接"`。默认 Sheet1；不同工作表用 `--sheet-name`。配置和会话存放在用户的 `Documents/Codex/li-auto-event-tracking-data`，可用 `LI_AUTO_TRACKING_DATA` 指定其他目录。
+2. **每次运行前**先执行 `bash run.sh check-login`。必须同时返回 `feishu: ready` 和 `platform: ready`。失败时只播报这项异常；执行 `bash run.sh login`，让用户在脚本专用 Chrome 中登录两端，终端按回车后复查。其他浏览器已登录不等于脚本已登录。
 3. **执行前询问行区间**：“本次处理第几行到第几行？哪些行先跳过？”本次对话已明确给出的范围视为回答，不重复询问。缺少范围时等待用户回答，禁止根据末行或历史范围猜测。用户明确暂缓的行持续排除，除非用户重新授权。
-4. 使用一次命令完成整批：`node scripts/control.mjs run --rows 6-18 --confirmed`。离散范围写 `6-18,20`；跳过行使用 `--exclude 10-12`。脚本在每个批次开始时再次检查两端登录。`--confirmed` 仅用于用户已确认的范围。
+4. 使用一次命令完成整批：`bash run.sh run --rows 6-18 --confirmed`。离散范围写 `6-18,20`；跳过行使用 `--exclude 10-12`。脚本在每个批次开始时再次检查两端登录。`--confirmed` 仅用于用户已确认的范围。
 5. 正常运行静默等待进程退出。脚本详细日志写入本地文件，终端只返回失败或最终摘要。**不逐行看页面、不逐行读取日志、不重复输出状态、不调用模型决定每一行**。使用执行工具的进程完成通知；必须轮询时采用工具允许的最长等待，退避至低频，只检查进程是否退出。用户明确询问进度时，可执行一次 `status`，不得为了监督读取完整日志。
 6. 退出成功后播报一条：处理范围、新建/跳过/恢复回写数量和未处理范围。异常时只读本次日志末尾必要部分，播报失败行与下一步；排障才读取 [references/recovery.md](references/recovery.md)。不要将“进程停止”当成“全部完成”。
 
