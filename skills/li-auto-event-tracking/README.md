@@ -16,7 +16,7 @@ curl -fsSL https://raw.githubusercontent.com/javenvian-del/prototypes/main/skill
 
 ## 模板
 
-[直接下载空白Excel模板](https://github.com/javenvian-del/prototypes/raw/refs/heads/main/templates/event-tracking-template.xlsx)。导入飞书，保留Sheet1及A–J列标题；H列插入单元格图片。I/J留空等待脚本回写。
+[查看用户指定的飞书模板](https://li.feishu.cn/wiki/HQMswPaO7i6F8rkq0hKcFgBVnvd)。按模板填写后，提供本次要处理的表格链接。I/J留空等待脚本回写。该链接是参考模板，不自动作为创建任务的源表格；不再推荐原GitHub Excel模板。
 
 ## 首次运行
 
@@ -42,4 +42,4 @@ bash ~/.codex/skills/li-auto-event-tracking/run.sh run --rows 6-18 --confirmed
 
 普通ChatGPT对话没有本机终端或内网浏览器执行能力，不能用这条命令把它变成可执行的本机skill。可以把本技能说明和模板作为项目资料，用ChatGPT协助填写和解释，再在本机终端运行相同脚本。若使用的代理环境明确提供本机终端，才可让它依照SKILL.md执行；云端Python环境不能替代公司内网和本机登录。
 
-仓库只包含代码和空白模板，不携带会话、真实截图、实际事件或私有表格链接。已在macOS的现有流程验证；Claude Code入口沿用通用技能格式，未替你启动Claude Code进行生产创建测试。
+仓库只包含代码和空白模板，不携带会话、真实截图或实际事件数据；模板入口使用用户指定的飞书链接。已在macOS的现有流程验证；Claude Code入口沿用通用技能格式，未替你启动Claude Code进行生产创建测试。
