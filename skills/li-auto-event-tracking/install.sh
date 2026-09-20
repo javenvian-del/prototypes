@@ -55,6 +55,6 @@ install_one() {
 }
 if [ "$target" = both ] || [ "$target" = codex ]; then install_one "${CODEX_HOME:-$HOME/.codex}/skills/li-auto-event-tracking"; fi
 if [ "$target" = both ] || [ "$target" = claude ]; then install_one "$HOME/.claude/skills/li-auto-event-tracking"; fi
-echo '理想汽车埋点批量创建 installed. Start a new conversation to load the skill.'
+echo '安装成功！在codex聊天中，输入理想汽车埋点批量创建即可命中本skill'
 echo 'Requires Google Chrome and access to the company network. Check both logins before choosing rows.'
 echo 'ChatGPT: instructions/template only unless your environment provides a local terminal.'
