@@ -4,7 +4,7 @@
 
 ## 一条命令安装
 
-macOS / Linux（需 Node.js 20+、Git、curl、npm和已安装的Google Chrome）：
+macOS / Linux：需Git、curl和Google Chrome。安装器自动查找终端、Codex自带目录及Homebrew中的Node.js 20+；找到Codex已有运行环境时无需另装Node.js。没有可用Node.js时会给出安装提示，缺少Playwright时通过npm安装。
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/javenvian-del/prototypes/main/skills/li-auto-event-tracking/install.sh | bash
@@ -23,15 +23,15 @@ curl -fsSL https://raw.githubusercontent.com/javenvian-del/prototypes/main/skill
 把下列技能路径换成实际安装路径。无需把飞书链接、登录凭据上传给GitHub。
 
 ```bash
-node ~/.codex/skills/li-auto-event-tracking/scripts/control.mjs init --sheet-url '你的飞书表格链接' --platform-url '运营平台事件管理页链接'
-node ~/.codex/skills/li-auto-event-tracking/scripts/control.mjs check-login
-node ~/.codex/skills/li-auto-event-tracking/scripts/control.mjs login
+bash ~/.codex/skills/li-auto-event-tracking/run.sh init --sheet-url '你的飞书表格链接' --platform-url '运营平台事件管理页链接'
+bash ~/.codex/skills/li-auto-event-tracking/run.sh check-login
+bash ~/.codex/skills/li-auto-event-tracking/run.sh login
 ```
 
 登录失败时才需第三条命令：在弹出的专用Chrome中登录飞书和运营平台，终端按回车。两端检查都通过后，先确定本次行范围，再执行：
 
 ```bash
-node ~/.codex/skills/li-auto-event-tracking/scripts/control.mjs run --rows 6-18 --confirmed
+bash ~/.codex/skills/li-auto-event-tracking/run.sh run --rows 6-18 --confirmed
 ```
 
 `--exclude 10-12` 可排除暂缓行。没有明确行范围脚本拒绝执行。只填写基础信息，不填写自定义参数。I或J已有值以及平台已有事件都会跳过；有明确本地提交记录的中断回写只补写，不重建。元素名称特殊字符自动去掉，源表格不改，空名或超长停止。
