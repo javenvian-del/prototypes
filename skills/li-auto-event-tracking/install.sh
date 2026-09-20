@@ -8,10 +8,17 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 case "$target" in both|codex|claude) ;; *) echo 'Use --target both|codex|claude' >&2; exit 2;; esac
-for command_name in git node; do
-  command -v "$command_name" >/dev/null || { echo "Missing $command_name. Install Node.js 20+ and Git first." >&2; exit 1; }
+command -v git >/dev/null || { echo 'Git is required.' >&2; exit 1; }
+node_bin=''
+for candidate in "$(command -v node || true)" "$HOME/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node" /opt/homebrew/bin/node /usr/local/bin/node; do
+  if [ -n "$candidate" ] && [ -x "$candidate" ] && "$candidate" -e 'process.exit(Number(process.versions.node.split(".")[0])>=20?0:1)' 2>/dev/null; then
+    node_bin="$candidate"
+    break
+  fi
 done
-node -e 'if(Number(process.versions.node.split(".")[0])<20)process.exit(1)' || { echo 'Node.js 20+ required' >&2; exit 1; }
+if [ -z "$node_bin" ]; then echo 'No usable Node.js 20+ found in PATH, Codex runtime or Homebrew. Install Node.js 20+ first.' >&2; exit 1; fi
+export PATH="$(dirname "$node_bin"):$PATH"
+printf 'Using Node.js: %s\n' "$node_bin"
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 git clone --quiet --depth 1 https://github.com/javenvian-del/prototypes.git "$tmp/repo"
@@ -36,6 +43,9 @@ install_one() {
   mkdir -p "$(dirname "$destination")"
   staging="${destination}.install-$$"
   cp -R "$source_dir" "$staging"
+  # Save a launcher so subsequent runs also work without Node.js in the user's PATH.
+  printf '#!/usr/bin/env bash\nexec %q "$(cd -- "$(dirname -- "$0")" && pwd)/scripts/control.mjs" "$@"\n' "$node_bin" > "$staging/run.sh"
+  chmod +x "$staging/run.sh"
   ln -s "$cache_dir/node_modules" "$staging/node_modules"
   if [ -e "$destination" ]; then
     mv "$destination" "${destination}.backup-$(date +%Y%m%d%H%M%S)-$$"
