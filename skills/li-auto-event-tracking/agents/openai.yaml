@@ -1,0 +1,6 @@
+interface:
+  display_name: "理想汽车埋点批量创建"
+  short_description: "脚本批量创建并回写埋点，检查两端登录与行区间，低频监督节省token"
+  default_prompt: "使用 $li-auto-event-tracking 处理我的飞书埋点表，先检查登录并确认本次行区间。"
+policy:
+  allow_implicit_invocation: true
